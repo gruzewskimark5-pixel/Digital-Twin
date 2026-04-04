@@ -1,0 +1,5 @@
+{
+  "name": "Digital Twin Command Center",
+  "description": "Real-time orbital mechanics, power, and thermal telemetry dashboard for satellite constellation management.",
+  "requestFramePermissions": []
+}
