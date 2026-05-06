@@ -78,8 +78,9 @@ export default function App() {
   const [isEclipse, setIsEclipse] = useState(false);
   
   // Simulated TwinState
-  const [powerData, setPowerData] = useState(generateTimeSeriesData(85, 0.5, -0.1, 60));
-  const [thermalData, setThermalData] = useState(generateTimeSeriesData(45, 1.2, 0.05, 60));
+  // ⚡ Bolt: Use lazy initialization to prevent executing generateTimeSeriesData on every render tick
+  const [powerData, setPowerData] = useState(() => generateTimeSeriesData(85, 0.5, -0.1, 60));
+  const [thermalData, setThermalData] = useState(() => generateTimeSeriesData(45, 1.2, 0.05, 60));
   const [telemetryLog, setTelemetryLog] = useState<string[]>([]);
   const [jobs, setJobs] = useState<Job[]>(INITIAL_JOBS);
   const [anomalies, setAnomalies] = useState<Anomaly[]>(INITIAL_ANOMALIES);
