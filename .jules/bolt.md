@@ -1,0 +1,3 @@
+## 2024-05-07 - Missing Lazy Initialization for Expensive State
+**Learning:** React state initialized with function calls like `useState(expensiveOperation())` will run the expensive operation on *every single render*, even though the result is only used on the initial render. In a fast-updating application (like a 1s tick simulation), this creates massive unnecessary garbage collection overhead and blocks the main thread.
+**Action:** Always use lazy initialization `useState(() => expensiveOperation())` for state derived from expensive computations or large array generations to ensure they only run once during the component's lifecycle.
