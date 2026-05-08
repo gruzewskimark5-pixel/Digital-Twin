@@ -74,7 +74,9 @@ const INITIAL_ANOMALIES: Anomaly[] = [
 export default function App() {
   const [activeTab, setActiveTab] = useState<'TWIN' | 'H_LAYER' | 'I_LAYER' | 'J_LAYER' | 'K_LAYER' | 'L_LAYER' | 'M_LAYER' | 'N_LAYER' | 'O_LAYER' | 'P_LAYER' | 'Q_LAYER' | 'R_LAYER' | 'S_LAYER' | 'T_LAYER' | 'U_LAYER' | 'V_LAYER' | 'W_LAYER' | 'X_LAYER' | 'Y_LAYER' | 'Z_LAYER'>('Z_LAYER');
   const [activeNode, setActiveNode] = useState(MOCK_NODES[0]);
-  const [timestamp, setTimestamp] = useState(new Date());
+  // ⚡ Bolt Optimization: Use lazy initialization for Date and expensive time series generation
+  // Prevents running `new Date()` and `generateTimeSeriesData` (which loops 60 times) on every single render/tick
+  const [timestamp, setTimestamp] = useState(() => new Date());
   const [isEclipse, setIsEclipse] = useState(false);
   
   // Simulated TwinState
