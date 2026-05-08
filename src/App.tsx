@@ -1,31 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, ReferenceLine } from 'recharts';
 import { Satellite, Globe, Activity, Radio, Clock, Zap, Sun, Moon, ThermometerSun, Database, Play, CheckCircle2, Save, ListTodo, Plus, AlertTriangle, ShieldAlert, Terminal, CheckSquare } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { MLayerDashboard } from './components/MLayerDashboard';
-import { NLayerDashboard } from './components/NLayerDashboard';
-import { OLayerDashboard } from './components/OLayerDashboard';
-import { PLayerDashboard } from './components/PLayerDashboard';
-import { QLayerDashboard } from './components/QLayerDashboard';
-import { RLayerDashboard } from './components/RLayerDashboard';
-import { SLayerDashboard } from './components/SLayerDashboard';
-import { TLayerDashboard } from './components/TLayerDashboard';
-import { ULayerDashboard } from './components/ULayerDashboard';
-import { VLayerDashboard } from './components/VLayerDashboard';
-import { WLayerDashboard } from './components/WLayerDashboard';
-import { XLayerDashboard } from './components/XLayerDashboard';
-import { YLayerDashboard } from './components/YLayerDashboard';
-import { ZLayerDashboard } from './components/ZLayerDashboard';
-import { AALayerDashboard } from './components/AALayerDashboard';
-import { ABLayerDashboard } from './components/ABLayerDashboard';
-import { ACLayerDashboard } from './components/ACLayerDashboard';
-import { ADLayerDashboard } from './components/ADLayerDashboard';
-import { HLayerDashboard } from './components/HLayerDashboard';
-import { ILayerDashboard } from './components/ILayerDashboard';
-import { JLayerDashboard } from './components/JLayerDashboard';
-import { KLayerDashboard } from './components/KLayerDashboard';
-import { LLayerDashboard } from './components/LLayerDashboard';
+const MLayerDashboard = lazy(() => import('./components/MLayerDashboard').then(m => ({ default: m.MLayerDashboard })));
+const NLayerDashboard = lazy(() => import('./components/NLayerDashboard').then(m => ({ default: m.NLayerDashboard })));
+const OLayerDashboard = lazy(() => import('./components/OLayerDashboard').then(m => ({ default: m.OLayerDashboard })));
+const PLayerDashboard = lazy(() => import('./components/PLayerDashboard').then(m => ({ default: m.PLayerDashboard })));
+const QLayerDashboard = lazy(() => import('./components/QLayerDashboard').then(m => ({ default: m.QLayerDashboard })));
+const RLayerDashboard = lazy(() => import('./components/RLayerDashboard').then(m => ({ default: m.RLayerDashboard })));
+const SLayerDashboard = lazy(() => import('./components/SLayerDashboard').then(m => ({ default: m.SLayerDashboard })));
+const TLayerDashboard = lazy(() => import('./components/TLayerDashboard').then(m => ({ default: m.TLayerDashboard })));
+const ULayerDashboard = lazy(() => import('./components/ULayerDashboard').then(m => ({ default: m.ULayerDashboard })));
+const VLayerDashboard = lazy(() => import('./components/VLayerDashboard').then(m => ({ default: m.VLayerDashboard })));
+const WLayerDashboard = lazy(() => import('./components/WLayerDashboard').then(m => ({ default: m.WLayerDashboard })));
+const XLayerDashboard = lazy(() => import('./components/XLayerDashboard').then(m => ({ default: m.XLayerDashboard })));
+const YLayerDashboard = lazy(() => import('./components/YLayerDashboard').then(m => ({ default: m.YLayerDashboard })));
+const ZLayerDashboard = lazy(() => import('./components/ZLayerDashboard').then(m => ({ default: m.ZLayerDashboard })));
+const AALayerDashboard = lazy(() => import('./components/AALayerDashboard').then(m => ({ default: m.AALayerDashboard })));
+const ABLayerDashboard = lazy(() => import('./components/ABLayerDashboard').then(m => ({ default: m.ABLayerDashboard })));
+const ACLayerDashboard = lazy(() => import('./components/ACLayerDashboard').then(m => ({ default: m.ACLayerDashboard })));
+const ADLayerDashboard = lazy(() => import('./components/ADLayerDashboard').then(m => ({ default: m.ADLayerDashboard })));
+const HLayerDashboard = lazy(() => import('./components/HLayerDashboard').then(m => ({ default: m.HLayerDashboard })));
+const ILayerDashboard = lazy(() => import('./components/ILayerDashboard').then(m => ({ default: m.ILayerDashboard })));
+const JLayerDashboard = lazy(() => import('./components/JLayerDashboard').then(m => ({ default: m.JLayerDashboard })));
+const KLayerDashboard = lazy(() => import('./components/KLayerDashboard').then(m => ({ default: m.KLayerDashboard })));
+const LLayerDashboard = lazy(() => import('./components/LLayerDashboard').then(m => ({ default: m.LLayerDashboard })));
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -448,6 +448,7 @@ export default function App() {
         </div>
       </header>
 
+      <Suspense fallback={<div className="flex items-center justify-center p-8 text-emerald-400 font-mono text-sm animate-pulse">LOADING LAYER...</div>}>
       {activeTab === 'H_LAYER' ? (
         <HLayerDashboard />
       ) : activeTab === 'I_LAYER' ? (
@@ -762,6 +763,7 @@ export default function App() {
           </div>
         </div>
       )}
+      </Suspense>
     </div>
   );
 }
