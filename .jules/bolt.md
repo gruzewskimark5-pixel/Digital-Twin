@@ -6,3 +6,7 @@
 ## 2024-05-24 - Code Splitting Large Component Imports
 **Learning:** When a single React application aggregates numerous large sub-components (like twenty-odd dashboard layers), importing them all synchronously into the main bundle significantly bloats the initial load time and script execution cost, even if only one is rendered at a time.
 **Action:** Use `React.lazy` combined with `Suspense` to code-split these non-critical components, fetching their specific bundles only when the user navigates to their respective layer.
+
+## 2023-10-24 - React useEffect setInterval Anti-Pattern
+**Learning:** Including state variables (`activeNode`, `isEclipse`, `powerData`, `thermalData`) in the dependency array of a `useEffect` that calls `setInterval` causes the interval to be repeatedly cleared and recreated on every state change (which happens every tick). This leads to significant GC churn, timer drift, and blocked main threads, as the simulation logic is continuously re-registered.
+**Action:** Always use the `useRef` callback pattern (commonly known as `useInterval`) to maintain a reference to the latest closure state, while keeping the `setInterval` in a `useEffect` with an empty dependency array `[]`. This ensures the interval is only created once and never torn down unnecessarily.

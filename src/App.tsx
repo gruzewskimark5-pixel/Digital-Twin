@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, ReferenceLine } from 'recharts';
 import { Satellite, Globe, Activity, Radio, Clock, Zap, Sun, Moon, ThermometerSun, Database, Play, CheckCircle2, Save, ListTodo, Plus, AlertTriangle, ShieldAlert, Terminal, CheckSquare } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
@@ -87,9 +87,12 @@ export default function App() {
   const [jobs, setJobs] = useState<Job[]>(INITIAL_JOBS);
   const [anomalies, setAnomalies] = useState<Anomaly[]>(INITIAL_ANOMALIES);
 
-  // Simulation Tick
+  // ⚡ Bolt Optimization: Use useInterval pattern to prevent GC churn and timer drift
+  // The simulation tick is now a ref that doesn't trigger effect re-runs on state change
+  const savedCallback = useRef<(() => void) | null>(null);
+
   useEffect(() => {
-    const interval = setInterval(() => {
+    savedCallback.current = () => {
       const now = new Date();
       setTimestamp(now);
       
@@ -145,11 +148,19 @@ export default function App() {
 
         return { ...job, progress: newProgress, status: newStatus, node: newNode };
       }));
-
-    }, 1000); // 1s tick for demo speed
-
-    return () => clearInterval(interval);
+    };
   }, [activeNode, isEclipse, powerData, thermalData]);
+
+  // Simulation Tick
+  useEffect(() => {
+    const tick = () => {
+      if (savedCallback.current) {
+        savedCallback.current();
+      }
+    };
+    const interval = setInterval(tick, 1000); // 1s tick for demo speed
+    return () => clearInterval(interval);
+  }, []); // ⚡ Empty dependency array ensures interval is only created once
 
   const injectJob = () => {
     const tasks = ['SAR_IMAGE_PROC', 'OPTICAL_DOWNLINK', 'NAV_DATA_SYNC', 'FIRMWARE_PATCH'];
