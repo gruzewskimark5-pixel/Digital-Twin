@@ -87,6 +87,10 @@ export default function App() {
   const [jobs, setJobs] = useState<Job[]>(INITIAL_JOBS);
   const [anomalies, setAnomalies] = useState<Anomaly[]>(INITIAL_ANOMALIES);
 
+  // ⚡ Bolt Optimization: Use useInterval pattern to prevent GC churn and timer drift
+  // The simulation tick is now a ref that doesn't trigger effect re-runs on state change
+  const savedCallback = useRef<(() => void) | null>(null);
+
   // ⚡ Bolt Optimization: Use refs to hold latest state for interval
   // This prevents tearing down and recreating the interval every second,
   // avoiding timer drift and reducing React hook overhead.
@@ -107,7 +111,7 @@ export default function App() {
 
   // Simulation Tick
   useEffect(() => {
-    const interval = setInterval(() => {
+    savedCallback.current = () => {
       const now = new Date();
       setTimestamp(now);
       
@@ -168,10 +172,19 @@ export default function App() {
 
         return { ...job, progress: newProgress, status: newStatus, node: newNode };
       }));
+    };
+  }, [activeNode, isEclipse, powerData, thermalData]);
 
-    }, 1000); // 1s tick for demo speed
-
+  // Simulation Tick
+  useEffect(() => {
+    const tick = () => {
+      if (savedCallback.current) {
+        savedCallback.current();
+      }
+    };
+    const interval = setInterval(tick, 1000); // 1s tick for demo speed
     return () => clearInterval(interval);
+  }, []); // ⚡ Empty dependency array ensures interval is only created once
   }, []); // ⚡ Bolt Optimization: Empty dependency array means interval is created exactly once
 
   const injectJob = () => {
