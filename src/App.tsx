@@ -91,6 +91,25 @@ export default function App() {
   // The simulation tick is now a ref that doesn't trigger effect re-runs on state change
   const savedCallback = useRef<(() => void) | null>(null);
 
+  // ⚡ Bolt Optimization: Use refs to hold latest state for interval
+  // This prevents tearing down and recreating the interval every second,
+  // avoiding timer drift and reducing React hook overhead.
+  const stateRef = useRef({
+    activeNode,
+    isEclipse,
+    latestPowerValue: powerData[powerData.length - 1].value,
+    latestThermalValue: thermalData[thermalData.length - 1].value
+  });
+
+  // Keep refs synced with current state
+  useEffect(() => {
+    stateRef.current.activeNode = activeNode;
+    stateRef.current.isEclipse = isEclipse;
+    stateRef.current.latestPowerValue = powerData[powerData.length - 1].value;
+    stateRef.current.latestThermalValue = thermalData[thermalData.length - 1].value;
+  }, [activeNode, isEclipse, powerData, thermalData]);
+
+  // Simulation Tick
   useEffect(() => {
     savedCallback.current = () => {
       const now = new Date();
@@ -100,6 +119,9 @@ export default function App() {
       const seconds = now.getSeconds();
       const inEclipse = seconds > 30;
       setIsEclipse(inEclipse);
+
+      // We use the locally calculated inEclipse for this tick,
+      // but for any other state dependencies we use the ref.
 
       // Update Power Data
       setPowerData(prev => {
@@ -117,8 +139,10 @@ export default function App() {
         return [...prev.slice(1), { time: `T+60m`, value: Number(newVal.toFixed(2)) }];
       });
 
-      // Add Telemetry Log
-      const logMsg = `[${now.toISOString().split('T')[1].slice(0, 8)}] ${activeNode} | Pwr: ${powerData[powerData.length-1].value.toFixed(1)}% | Tmp: ${thermalData[thermalData.length-1].value.toFixed(1)}°C | Sun: ${!inEclipse}`;
+      // Add Telemetry Log using Ref to access latest values
+      const pwrStr = stateRef.current.latestPowerValue.toFixed(1);
+      const tmpStr = stateRef.current.latestThermalValue.toFixed(1);
+      const logMsg = `[${now.toISOString().split('T')[1].slice(0, 8)}] ${stateRef.current.activeNode} | Pwr: ${pwrStr}% | Tmp: ${tmpStr}°C | Sun: ${!inEclipse}`;
       setTelemetryLog(prev => [logMsg, ...prev].slice(0, 8));
 
       // Process Jobs
@@ -161,6 +185,7 @@ export default function App() {
     const interval = setInterval(tick, 1000); // 1s tick for demo speed
     return () => clearInterval(interval);
   }, []); // ⚡ Empty dependency array ensures interval is only created once
+  }, []); // ⚡ Bolt Optimization: Empty dependency array means interval is created exactly once
 
   const injectJob = () => {
     const tasks = ['SAR_IMAGE_PROC', 'OPTICAL_DOWNLINK', 'NAV_DATA_SYNC', 'FIRMWARE_PATCH'];
