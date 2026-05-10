@@ -6,3 +6,6 @@
 ## 2024-05-24 - Code Splitting Large Component Imports
 **Learning:** When a single React application aggregates numerous large sub-components (like twenty-odd dashboard layers), importing them all synchronously into the main bundle significantly bloats the initial load time and script execution cost, even if only one is rendered at a time.
 **Action:** Use `React.lazy` combined with `Suspense` to code-split these non-critical components, fetching their specific bundles only when the user navigates to their respective layer.
+## 2024-05-24 - The Interval Re-creation Trap
+**Learning:** In a heavily-ticking React application, an interval that depends on rapidly changing state (like telemetry data updating every second) will be torn down and re-created constantly if that state is included in its dependency array. Even if the state setters use updater functions (`setPowerData(prev => ...)`), referencing the state directly elsewhere in the interval (e.g., logging) will still necessitate putting it in the dependency array. This creates unnecessary overhead and timer drift.
+**Action:** Use `useRef` to store the latest values of rapidly changing state and read from the ref inside the interval closure. This allows the interval's `useEffect` dependency array to be completely empty `[]`, creating the interval exactly once and preventing teardown/recreation cycles.
