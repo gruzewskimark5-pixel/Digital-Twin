@@ -13,3 +13,7 @@
 ## 2024-05-24 - The Interval Re-creation Trap
 **Learning:** In a heavily-ticking React application, an interval that depends on rapidly changing state (like telemetry data updating every second) will be torn down and re-created constantly if that state is included in its dependency array. Even if the state setters use updater functions (`setPowerData(prev => ...)`), referencing the state directly elsewhere in the interval (e.g., logging) will still necessitate putting it in the dependency array. This creates unnecessary overhead and timer drift.
 **Action:** Use `useRef` to store the latest values of rapidly changing state and read from the ref inside the interval closure. This allows the interval's `useEffect` dependency array to be completely empty `[]`, creating the interval exactly once and preventing teardown/recreation cycles.
+
+## 2026-05-16 - React List Key Optimization
+**Learning:** In heavily updating React components (like a 1s tick simulation), prepending to arrays and rendering lists with array index `i` as the `key` is a massive performance bottleneck. Because items are added to the front, the index of every existing item shifts, forcing React to unnecessarily unmount and remount/mutate every single DOM node in the list instead of just prepending the new one.
+**Action:** Always use stable, unique identifiers (such as a unique timestamped string or UUID) for the `key` prop when rendering lists, especially those that mutate frequently or prepend items.
