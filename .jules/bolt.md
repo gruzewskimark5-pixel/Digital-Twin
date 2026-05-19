@@ -13,3 +13,7 @@
 ## 2024-05-24 - The Interval Re-creation Trap
 **Learning:** In a heavily-ticking React application, an interval that depends on rapidly changing state (like telemetry data updating every second) will be torn down and re-created constantly if that state is included in its dependency array. Even if the state setters use updater functions (`setPowerData(prev => ...)`), referencing the state directly elsewhere in the interval (e.g., logging) will still necessitate putting it in the dependency array. This creates unnecessary overhead and timer drift.
 **Action:** Use `useRef` to store the latest values of rapidly changing state and read from the ref inside the interval closure. This allows the interval's `useEffect` dependency array to be completely empty `[]`, creating the interval exactly once and preventing teardown/recreation cycles.
+
+## 2024-05-19 - [Stable List Keys for Prepended Arrays]
+**Learning:** Using the array index as a `key` for an array that is frequently prepended to (like `telemetryLog` which updates every 1s) is a major React performance anti-pattern. Because the index of existing items shifts by 1, React assumes the DOM elements have changed and mutates all text nodes and classes down the list, instead of just inserting one new element at the top.
+**Action:** Always use stable, unique identifiers (like the log message itself or a UUID) as keys for dynamically prepended lists to avoid expensive O(N) DOM mutations during frequent re-renders.
