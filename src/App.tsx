@@ -83,7 +83,7 @@ export default function App() {
   // ⚡ Bolt: Use lazy initialization to prevent executing generateTimeSeriesData on every render tick
   const [powerData, setPowerData] = useState(() => generateTimeSeriesData(85, 0.5, -0.1, 60));
   const [thermalData, setThermalData] = useState(() => generateTimeSeriesData(45, 1.2, 0.05, 60));
-  const [telemetryLog, setTelemetryLog] = useState<string[]>([]);
+  const [telemetryLog, setTelemetryLog] = useState<{id: string, message: string}[]>([]);
   const [jobs, setJobs] = useState<Job[]>(INITIAL_JOBS);
   const [anomalies, setAnomalies] = useState<Anomaly[]>(INITIAL_ANOMALIES);
 
@@ -143,7 +143,7 @@ export default function App() {
       const pwrStr = stateRef.current.latestPowerValue.toFixed(1);
       const tmpStr = stateRef.current.latestThermalValue.toFixed(1);
       const logMsg = `[${now.toISOString().split('T')[1].slice(0, 8)}] ${stateRef.current.activeNode} | Pwr: ${pwrStr}% | Tmp: ${tmpStr}°C | Sun: ${!inEclipse}`;
-      setTelemetryLog(prev => [logMsg, ...prev].slice(0, 8));
+      setTelemetryLog(prev => [{ id: `log-${Date.now()}-${Math.random()}`, message: logMsg }, ...prev].slice(0, 8));
 
       // Process Jobs
       setJobs(prevJobs => prevJobs.map(job => {
@@ -185,7 +185,6 @@ export default function App() {
     const interval = setInterval(tick, 1000); // 1s tick for demo speed
     return () => clearInterval(interval);
   }, []); // ⚡ Empty dependency array ensures interval is only created once
-  }, []); // ⚡ Bolt Optimization: Empty dependency array means interval is created exactly once
 
   const injectJob = () => {
     const tasks = ['SAR_IMAGE_PROC', 'OPTICAL_DOWNLINK', 'NAV_DATA_SYNC', 'FIRMWARE_PATCH'];
@@ -588,8 +587,8 @@ export default function App() {
               <p className="text-[10px] font-mono text-gray-500 mb-2">TELEMETRY INGESTION LOG</p>
               <div className="bg-black/60 rounded-lg p-3 border border-gray-800 h-48 overflow-hidden font-mono text-[10px] leading-relaxed flex flex-col gap-1">
                 {telemetryLog.map((log, i) => (
-                  <div key={i} className={i === 0 ? "text-emerald-400" : "text-gray-600"}>
-                    {log}
+                  <div key={log.id} className={i === 0 ? "text-emerald-400" : "text-gray-600"}>
+                    {log.message}
                   </div>
                 ))}
               </div>
