@@ -185,7 +185,6 @@ export default function App() {
     const interval = setInterval(tick, 1000); // 1s tick for demo speed
     return () => clearInterval(interval);
   }, []); // ⚡ Empty dependency array ensures interval is only created once
-  }, []); // ⚡ Bolt Optimization: Empty dependency array means interval is created exactly once
 
   const injectJob = () => {
     const tasks = ['SAR_IMAGE_PROC', 'OPTICAL_DOWNLINK', 'NAV_DATA_SYNC', 'FIRMWARE_PATCH'];
@@ -588,7 +587,10 @@ export default function App() {
               <p className="text-[10px] font-mono text-gray-500 mb-2">TELEMETRY INGESTION LOG</p>
               <div className="bg-black/60 rounded-lg p-3 border border-gray-800 h-48 overflow-hidden font-mono text-[10px] leading-relaxed flex flex-col gap-1">
                 {telemetryLog.map((log, i) => (
-                  <div key={i} className={i === 0 ? "text-emerald-400" : "text-gray-600"}>
+                  // ⚡ Bolt Optimization: Use the unique log string as the key instead of the array index
+                  // Since items are prepended to this list every second, using index `i` forces React
+                  // to re-render every single DOM node in the list. Stable keys mean only 1 new node is inserted.
+                  <div key={log} className={i === 0 ? "text-emerald-400" : "text-gray-600"}>
                     {log}
                   </div>
                 ))}
