@@ -1,31 +1,36 @@
-import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
+import React, { useState, useEffect, useRef, Suspense, lazy, memo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, ReferenceLine } from 'recharts';
 import { Satellite, Globe, Activity, Radio, Clock, Zap, Sun, Moon, ThermometerSun, Database, Play, CheckCircle2, Save, ListTodo, Plus, AlertTriangle, ShieldAlert, Terminal, CheckSquare } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-const MLayerDashboard = lazy(() => import('./components/MLayerDashboard').then(m => ({ default: m.MLayerDashboard })));
-const NLayerDashboard = lazy(() => import('./components/NLayerDashboard').then(m => ({ default: m.NLayerDashboard })));
-const OLayerDashboard = lazy(() => import('./components/OLayerDashboard').then(m => ({ default: m.OLayerDashboard })));
-const PLayerDashboard = lazy(() => import('./components/PLayerDashboard').then(m => ({ default: m.PLayerDashboard })));
-const QLayerDashboard = lazy(() => import('./components/QLayerDashboard').then(m => ({ default: m.QLayerDashboard })));
-const RLayerDashboard = lazy(() => import('./components/RLayerDashboard').then(m => ({ default: m.RLayerDashboard })));
-const SLayerDashboard = lazy(() => import('./components/SLayerDashboard').then(m => ({ default: m.SLayerDashboard })));
-const TLayerDashboard = lazy(() => import('./components/TLayerDashboard').then(m => ({ default: m.TLayerDashboard })));
-const ULayerDashboard = lazy(() => import('./components/ULayerDashboard').then(m => ({ default: m.ULayerDashboard })));
-const VLayerDashboard = lazy(() => import('./components/VLayerDashboard').then(m => ({ default: m.VLayerDashboard })));
-const WLayerDashboard = lazy(() => import('./components/WLayerDashboard').then(m => ({ default: m.WLayerDashboard })));
-const XLayerDashboard = lazy(() => import('./components/XLayerDashboard').then(m => ({ default: m.XLayerDashboard })));
-const YLayerDashboard = lazy(() => import('./components/YLayerDashboard').then(m => ({ default: m.YLayerDashboard })));
-const ZLayerDashboard = lazy(() => import('./components/ZLayerDashboard').then(m => ({ default: m.ZLayerDashboard })));
-const AALayerDashboard = lazy(() => import('./components/AALayerDashboard').then(m => ({ default: m.AALayerDashboard })));
-const ABLayerDashboard = lazy(() => import('./components/ABLayerDashboard').then(m => ({ default: m.ABLayerDashboard })));
-const ACLayerDashboard = lazy(() => import('./components/ACLayerDashboard').then(m => ({ default: m.ACLayerDashboard })));
-const ADLayerDashboard = lazy(() => import('./components/ADLayerDashboard').then(m => ({ default: m.ADLayerDashboard })));
-const HLayerDashboard = lazy(() => import('./components/HLayerDashboard').then(m => ({ default: m.HLayerDashboard })));
-const ILayerDashboard = lazy(() => import('./components/ILayerDashboard').then(m => ({ default: m.ILayerDashboard })));
-const JLayerDashboard = lazy(() => import('./components/JLayerDashboard').then(m => ({ default: m.JLayerDashboard })));
-const KLayerDashboard = lazy(() => import('./components/KLayerDashboard').then(m => ({ default: m.KLayerDashboard })));
-const LLayerDashboard = lazy(() => import('./components/LLayerDashboard').then(m => ({ default: m.LLayerDashboard })));
+
+// ⚡ Bolt Optimization: Wrap lazy loaded layer components with React.memo()
+// The parent App.tsx forces a re-render every second due to telemetry interval ticks.
+// Without memoization, whichever large layer is active will needlessly re-render every second,
+// causing severe DOM reconciliation overhead and dropping frames.
+const MLayerDashboard = memo(lazy(() => import('./components/MLayerDashboard').then(m => ({ default: m.MLayerDashboard }))));
+const NLayerDashboard = memo(lazy(() => import('./components/NLayerDashboard').then(m => ({ default: m.NLayerDashboard }))));
+const OLayerDashboard = memo(lazy(() => import('./components/OLayerDashboard').then(m => ({ default: m.OLayerDashboard }))));
+const PLayerDashboard = memo(lazy(() => import('./components/PLayerDashboard').then(m => ({ default: m.PLayerDashboard }))));
+const QLayerDashboard = memo(lazy(() => import('./components/QLayerDashboard').then(m => ({ default: m.QLayerDashboard }))));
+const RLayerDashboard = memo(lazy(() => import('./components/RLayerDashboard').then(m => ({ default: m.RLayerDashboard }))));
+const SLayerDashboard = memo(lazy(() => import('./components/SLayerDashboard').then(m => ({ default: m.SLayerDashboard }))));
+const TLayerDashboard = memo(lazy(() => import('./components/TLayerDashboard').then(m => ({ default: m.TLayerDashboard }))));
+const ULayerDashboard = memo(lazy(() => import('./components/ULayerDashboard').then(m => ({ default: m.ULayerDashboard }))));
+const VLayerDashboard = memo(lazy(() => import('./components/VLayerDashboard').then(m => ({ default: m.VLayerDashboard }))));
+const WLayerDashboard = memo(lazy(() => import('./components/WLayerDashboard').then(m => ({ default: m.WLayerDashboard }))));
+const XLayerDashboard = memo(lazy(() => import('./components/XLayerDashboard').then(m => ({ default: m.XLayerDashboard }))));
+const YLayerDashboard = memo(lazy(() => import('./components/YLayerDashboard').then(m => ({ default: m.YLayerDashboard }))));
+const ZLayerDashboard = memo(lazy(() => import('./components/ZLayerDashboard').then(m => ({ default: m.ZLayerDashboard }))));
+const AALayerDashboard = memo(lazy(() => import('./components/AALayerDashboard').then(m => ({ default: m.AALayerDashboard }))));
+const ABLayerDashboard = memo(lazy(() => import('./components/ABLayerDashboard').then(m => ({ default: m.ABLayerDashboard }))));
+const ACLayerDashboard = memo(lazy(() => import('./components/ACLayerDashboard').then(m => ({ default: m.ACLayerDashboard }))));
+const ADLayerDashboard = memo(lazy(() => import('./components/ADLayerDashboard').then(m => ({ default: m.ADLayerDashboard }))));
+const HLayerDashboard = memo(lazy(() => import('./components/HLayerDashboard').then(m => ({ default: m.HLayerDashboard }))));
+const ILayerDashboard = memo(lazy(() => import('./components/ILayerDashboard').then(m => ({ default: m.ILayerDashboard }))));
+const JLayerDashboard = memo(lazy(() => import('./components/JLayerDashboard').then(m => ({ default: m.JLayerDashboard }))));
+const KLayerDashboard = memo(lazy(() => import('./components/KLayerDashboard').then(m => ({ default: m.KLayerDashboard }))));
+const LLayerDashboard = memo(lazy(() => import('./components/LLayerDashboard').then(m => ({ default: m.LLayerDashboard }))));
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
