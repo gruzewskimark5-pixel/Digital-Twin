@@ -17,3 +17,7 @@
 ## 2026-05-23 - React Array Index as Key Anti-Pattern
 **Learning:** In a heavily-ticking React application (like a 1s tick simulation), when an array is continuously *prepended* with new items (e.g., a real-time log feed), using the array index (`i`) as the `key` prop forces React to unmount, remount, and mutate *every single DOM node* in that list on *every single render*. This happens because the index of every existing item shifts down by one.
 **Action:** Always use stable, unique identifiers (like the log string itself, or a unique ID) for the `key` prop in lists that are modified (especially prepended). This allows React's diffing algorithm to recognize that existing nodes haven't changed, and simply insert the new node at the top, drastically reducing DOM mutation overhead and saving significant CPU cycles.
+
+## 2024-05-24 - React.memo with React.lazy in Fast-Ticking Apps
+**Learning:** In a dashboard application with a frequent global tick (e.g. 1 second) triggering re-renders at the top level (`App.tsx`), any child components—even those loaded via `React.lazy()`—will unnecessarily undergo reconciliation on every tick unless memoized. This causes significant overhead, particularly when there are dozens of such lazily-loaded components.
+**Action:** Always wrap `React.lazy()` component imports with `React.memo()` if they are rendered within a frequently updating parent and their props do not change, preventing costly and unnecessary re-renders.
