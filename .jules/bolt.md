@@ -17,3 +17,7 @@
 ## 2026-05-23 - React Array Index as Key Anti-Pattern
 **Learning:** In a heavily-ticking React application (like a 1s tick simulation), when an array is continuously *prepended* with new items (e.g., a real-time log feed), using the array index (`i`) as the `key` prop forces React to unmount, remount, and mutate *every single DOM node* in that list on *every single render*. This happens because the index of every existing item shifts down by one.
 **Action:** Always use stable, unique identifiers (like the log string itself, or a unique ID) for the `key` prop in lists that are modified (especially prepended). This allows React's diffing algorithm to recognize that existing nodes haven't changed, and simply insert the new node at the top, drastically reducing DOM mutation overhead and saving significant CPU cycles.
+
+## 2024-05-25 - React.memo for Static UI Components in Heavily-Ticking Apps
+**Learning:** In a heavily-ticking React application (like a 1s tick simulation), static UI components that rely on expensive operations (like `twMerge` via `cn()`) will re-render on every tick if left un-memoized. This causes significant unnecessary string-parsing overhead and CPU cycles.
+**Action:** Always extract static or rarely-changing UI blocks (like navigation tabs) into separate components and wrap them in `React.memo` to prevent them from re-rendering during frequent state updates from unrelated components. Use mapped arrays to render repetitive elements cleanly.
