@@ -3,29 +3,32 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Satellite, Globe, Activity, Radio, Clock, Zap, Sun, Moon, ThermometerSun, Database, Play, CheckCircle2, Save, ListTodo, Plus, AlertTriangle, ShieldAlert, Terminal, CheckSquare } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-const MLayerDashboard = lazy(() => import('./components/MLayerDashboard').then(m => ({ default: m.MLayerDashboard })));
-const NLayerDashboard = lazy(() => import('./components/NLayerDashboard').then(m => ({ default: m.NLayerDashboard })));
-const OLayerDashboard = lazy(() => import('./components/OLayerDashboard').then(m => ({ default: m.OLayerDashboard })));
-const PLayerDashboard = lazy(() => import('./components/PLayerDashboard').then(m => ({ default: m.PLayerDashboard })));
-const QLayerDashboard = lazy(() => import('./components/QLayerDashboard').then(m => ({ default: m.QLayerDashboard })));
-const RLayerDashboard = lazy(() => import('./components/RLayerDashboard').then(m => ({ default: m.RLayerDashboard })));
-const SLayerDashboard = lazy(() => import('./components/SLayerDashboard').then(m => ({ default: m.SLayerDashboard })));
-const TLayerDashboard = lazy(() => import('./components/TLayerDashboard').then(m => ({ default: m.TLayerDashboard })));
-const ULayerDashboard = lazy(() => import('./components/ULayerDashboard').then(m => ({ default: m.ULayerDashboard })));
-const VLayerDashboard = lazy(() => import('./components/VLayerDashboard').then(m => ({ default: m.VLayerDashboard })));
-const WLayerDashboard = lazy(() => import('./components/WLayerDashboard').then(m => ({ default: m.WLayerDashboard })));
-const XLayerDashboard = lazy(() => import('./components/XLayerDashboard').then(m => ({ default: m.XLayerDashboard })));
-const YLayerDashboard = lazy(() => import('./components/YLayerDashboard').then(m => ({ default: m.YLayerDashboard })));
-const ZLayerDashboard = lazy(() => import('./components/ZLayerDashboard').then(m => ({ default: m.ZLayerDashboard })));
-const AALayerDashboard = lazy(() => import('./components/AALayerDashboard').then(m => ({ default: m.AALayerDashboard })));
-const ABLayerDashboard = lazy(() => import('./components/ABLayerDashboard').then(m => ({ default: m.ABLayerDashboard })));
-const ACLayerDashboard = lazy(() => import('./components/ACLayerDashboard').then(m => ({ default: m.ACLayerDashboard })));
-const ADLayerDashboard = lazy(() => import('./components/ADLayerDashboard').then(m => ({ default: m.ADLayerDashboard })));
-const HLayerDashboard = lazy(() => import('./components/HLayerDashboard').then(m => ({ default: m.HLayerDashboard })));
-const ILayerDashboard = lazy(() => import('./components/ILayerDashboard').then(m => ({ default: m.ILayerDashboard })));
-const JLayerDashboard = lazy(() => import('./components/JLayerDashboard').then(m => ({ default: m.JLayerDashboard })));
-const KLayerDashboard = lazy(() => import('./components/KLayerDashboard').then(m => ({ default: m.KLayerDashboard })));
-const LLayerDashboard = lazy(() => import('./components/LLayerDashboard').then(m => ({ default: m.LLayerDashboard })));
+// ⚡ Bolt Optimization: Wrap React.lazy with React.memo
+// Prevents the active layer dashboard from re-rendering on every 1-second tick
+// since these components are static and don't depend on the ticking state.
+const MLayerDashboard = React.memo(lazy(() => import('./components/MLayerDashboard').then(m => ({ default: m.MLayerDashboard }))));
+const NLayerDashboard = React.memo(lazy(() => import('./components/NLayerDashboard').then(m => ({ default: m.NLayerDashboard }))));
+const OLayerDashboard = React.memo(lazy(() => import('./components/OLayerDashboard').then(m => ({ default: m.OLayerDashboard }))));
+const PLayerDashboard = React.memo(lazy(() => import('./components/PLayerDashboard').then(m => ({ default: m.PLayerDashboard }))));
+const QLayerDashboard = React.memo(lazy(() => import('./components/QLayerDashboard').then(m => ({ default: m.QLayerDashboard }))));
+const RLayerDashboard = React.memo(lazy(() => import('./components/RLayerDashboard').then(m => ({ default: m.RLayerDashboard }))));
+const SLayerDashboard = React.memo(lazy(() => import('./components/SLayerDashboard').then(m => ({ default: m.SLayerDashboard }))));
+const TLayerDashboard = React.memo(lazy(() => import('./components/TLayerDashboard').then(m => ({ default: m.TLayerDashboard }))));
+const ULayerDashboard = React.memo(lazy(() => import('./components/ULayerDashboard').then(m => ({ default: m.ULayerDashboard }))));
+const VLayerDashboard = React.memo(lazy(() => import('./components/VLayerDashboard').then(m => ({ default: m.VLayerDashboard }))));
+const WLayerDashboard = React.memo(lazy(() => import('./components/WLayerDashboard').then(m => ({ default: m.WLayerDashboard }))));
+const XLayerDashboard = React.memo(lazy(() => import('./components/XLayerDashboard').then(m => ({ default: m.XLayerDashboard }))));
+const YLayerDashboard = React.memo(lazy(() => import('./components/YLayerDashboard').then(m => ({ default: m.YLayerDashboard }))));
+const ZLayerDashboard = React.memo(lazy(() => import('./components/ZLayerDashboard').then(m => ({ default: m.ZLayerDashboard }))));
+const AALayerDashboard = React.memo(lazy(() => import('./components/AALayerDashboard').then(m => ({ default: m.AALayerDashboard }))));
+const ABLayerDashboard = React.memo(lazy(() => import('./components/ABLayerDashboard').then(m => ({ default: m.ABLayerDashboard }))));
+const ACLayerDashboard = React.memo(lazy(() => import('./components/ACLayerDashboard').then(m => ({ default: m.ACLayerDashboard }))));
+const ADLayerDashboard = React.memo(lazy(() => import('./components/ADLayerDashboard').then(m => ({ default: m.ADLayerDashboard }))));
+const HLayerDashboard = React.memo(lazy(() => import('./components/HLayerDashboard').then(m => ({ default: m.HLayerDashboard }))));
+const ILayerDashboard = React.memo(lazy(() => import('./components/ILayerDashboard').then(m => ({ default: m.ILayerDashboard }))));
+const JLayerDashboard = React.memo(lazy(() => import('./components/JLayerDashboard').then(m => ({ default: m.JLayerDashboard }))));
+const KLayerDashboard = React.memo(lazy(() => import('./components/KLayerDashboard').then(m => ({ default: m.KLayerDashboard }))));
+const LLayerDashboard = React.memo(lazy(() => import('./components/LLayerDashboard').then(m => ({ default: m.LLayerDashboard }))));
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -70,6 +73,36 @@ const INITIAL_JOBS: Job[] = [
 const INITIAL_ANOMALIES: Anomaly[] = [
   { id: 'ERR-089', type: 'THERMAL_SPIKE', node: 'SAT-GAMMA-03', severity: 'WARNING', timestamp: new Date().toISOString(), playbook: 'PB-THRM-01' }
 ];
+
+// ⚡ Bolt Optimization: Extract and memoize the tab navigation to prevent
+// 30+ twMerge calls on every single 1-second simulation tick.
+// Since activeTab changes rarely, this static UI block should only render once.
+const TabNav = React.memo(({ activeTab, setActiveTab }: {
+  activeTab: string,
+  setActiveTab: React.Dispatch<React.SetStateAction<string>>
+}) => {
+  const tabs = [
+    'TWIN', 'H_LAYER', 'I_LAYER', 'J_LAYER', 'K_LAYER', 'L_LAYER', 'M_LAYER',
+    'N_LAYER', 'O_LAYER', 'P_LAYER', 'Q_LAYER', 'R_LAYER', 'S_LAYER', 'T_LAYER',
+    'U_LAYER', 'V_LAYER', 'W_LAYER', 'X_LAYER', 'Y_LAYER', 'Z_LAYER'
+  ];
+  return (
+    <div className="flex items-center gap-2 bg-black/40 p-1 rounded-lg border border-gray-800 overflow-x-auto max-w-full">
+      {tabs.map(tab => (
+        <button
+          key={tab}
+          onClick={() => setActiveTab(tab as any)}
+          className={cn(
+            "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
+            activeTab === tab ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
+          )}
+        >
+          {tab.replace('_LAYER', '-LAYER')}
+        </button>
+      ))}
+    </div>
+  );
+});
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'TWIN' | 'H_LAYER' | 'I_LAYER' | 'J_LAYER' | 'K_LAYER' | 'L_LAYER' | 'M_LAYER' | 'N_LAYER' | 'O_LAYER' | 'P_LAYER' | 'Q_LAYER' | 'R_LAYER' | 'S_LAYER' | 'T_LAYER' | 'U_LAYER' | 'V_LAYER' | 'W_LAYER' | 'X_LAYER' | 'Y_LAYER' | 'Z_LAYER'>('Z_LAYER');
@@ -261,215 +294,7 @@ export default function App() {
           </div>
         </div>
         
-        <div className="flex items-center gap-2 bg-black/40 p-1 rounded-lg border border-gray-800 overflow-x-auto max-w-full">
-          <button 
-            onClick={() => setActiveTab('TWIN')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'TWIN' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            TWIN
-          </button>
-          <button 
-            onClick={() => setActiveTab('H_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'H_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            H-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('I_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'I_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            I-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('J_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'J_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            J-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('K_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'K_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            K-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('L_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'L_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            L-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('M_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'M_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            M-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('N_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'N_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            N-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('O_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'O_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            O-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('P_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'P_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            P-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('Q_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'Q_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            Q-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('R_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'R_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            R-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('S_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'S_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            S-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('T_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'T_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            T-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('U_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'U_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            U-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('V_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'S_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            S-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('T_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'T_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            T-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('U_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'U_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            U-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('V_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'V_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            V-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('W_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'W_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            W-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('X_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'X_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            X-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('Y_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'Y_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            Y-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('Z_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'Z_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            Z-LAYER
-          </button>
-        </div>
+        <TabNav activeTab={activeTab} setActiveTab={setActiveTab as any} />
 
         <div className="flex items-center gap-6 font-mono text-sm shrink-0">
           <div className="flex items-center gap-2">
