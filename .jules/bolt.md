@@ -20,3 +20,7 @@
 ## 2024-06-05 - React lazy and memo wrapper optimization
 **Learning:** In applications utilizing `React.lazy()` for code splitting of large, mostly static dashboard layers, frequent state updates (like a 1-second simulation tick in the parent component) can trigger unnecessary reconciliation or re-evaluations of those lazy-loaded components, even if they aren't directly receiving updated props.
 **Action:** Wrap `React.lazy()` imports with `React.memo()` (e.g., `const MyComponent = memo(lazy(() => import('...')))`) to prevent unnecessary React reconciliation overhead during frequent parent state updates. This ensures that static UI layers remain isolated from the parent's rapid render cycle.
+
+## 2026-06-09 - React.memo for large static UI elements
+**Learning:** Extracting large, relatively static chunks of UI (like a long navigation bar iterating over 20+ tabs) into separate `React.memo()` components prevents them from unnecessarily re-rendering. This is especially important in applications with hot render loops (like 1-second simulation ticks) where executing string-parsing utility functions (e.g., `clsx`, `twMerge`) dozens of times per second across all tabs can block the main thread and impact overall app performance.
+**Action:** Use `React.memo()` on mostly-static presentation components to insulate them from rapidly changing parent state (like simulation tickers).
