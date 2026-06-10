@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, Suspense, lazy, memo } from 'react';
+import React, { useState, useEffect, useRef, Suspense, lazy, memo, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, ReferenceLine } from 'recharts';
 import { Satellite, Globe, Activity, Radio, Clock, Zap, Sun, Moon, ThermometerSun, Database, Play, CheckCircle2, Save, ListTodo, Plus, AlertTriangle, ShieldAlert, Terminal, CheckSquare } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
@@ -72,7 +72,17 @@ const INITIAL_ANOMALIES: Anomaly[] = [
   { id: 'ERR-089', type: 'THERMAL_SPIKE', node: 'SAT-GAMMA-03', severity: 'WARNING', timestamp: new Date().toISOString(), playbook: 'PB-THRM-01' }
 ];
 
+const LAYER_TABS = [
+  'TWIN', 'H_LAYER', 'I_LAYER', 'J_LAYER', 'K_LAYER', 'L_LAYER',
+  'M_LAYER', 'N_LAYER', 'O_LAYER', 'P_LAYER', 'Q_LAYER', 'R_LAYER',
+  'S_LAYER', 'T_LAYER', 'U_LAYER', 'V_LAYER', 'W_LAYER', 'X_LAYER',
+  'Y_LAYER', 'Z_LAYER'
+] as const;
+
+type LayerTab = typeof LAYER_TABS[number];
+
 export default function App() {
+  const [activeTab, setActiveTab] = useState<LayerTab>('Z_LAYER');
   const [activeTab, setActiveTab] = useState<TabType>('Z_LAYER');
   const [activeNode, setActiveNode] = useState(MOCK_NODES[0]);
   // ⚡ Bolt Optimization: Use lazy initialization for Date and expensive time series generation
@@ -91,6 +101,21 @@ export default function App() {
   // ⚡ Bolt Optimization: Use useInterval pattern to prevent GC churn and timer drift
   // The simulation tick is now a ref that doesn't trigger effect re-runs on state change
   const savedCallback = useRef<(() => void) | null>(null);
+
+  // ⚡ Bolt Optimization: Use useMemo to prevent redundant parsing of 24 tabs
+  // on every tick of the 1-second simulation loop.
+  const renderedTabs = useMemo(() => LAYER_TABS.map(tab => (
+    <button
+      key={tab}
+      onClick={() => setActiveTab(tab)}
+      className={cn(
+        "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
+        activeTab === tab ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
+      )}
+    >
+      {tab.replace('_', '-')}
+    </button>
+  )), [activeTab]);
 
   // ⚡ Bolt Optimization: Use refs to hold latest state for interval
   // This prevents tearing down and recreating the interval every second,
@@ -262,6 +287,9 @@ export default function App() {
           </div>
         </div>
         
+        <div className="flex items-center gap-2 bg-black/40 p-1 rounded-lg border border-gray-800 overflow-x-auto max-w-full">
+          {renderedTabs}
+        </div>
         <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
         <div className="flex items-center gap-6 font-mono text-sm shrink-0">
