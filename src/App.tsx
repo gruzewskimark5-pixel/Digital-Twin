@@ -3,6 +3,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Satellite, Globe, Activity, Radio, Clock, Zap, Sun, Moon, ThermometerSun, Database, Play, CheckCircle2, Save, ListTodo, Plus, AlertTriangle, ShieldAlert, Terminal, CheckSquare } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { TabNavigation, type TabType } from './components/TabNavigation';
 const MLayerDashboard = memo(lazy(() => import('./components/MLayerDashboard').then(m => ({ default: m.MLayerDashboard }))));
 const NLayerDashboard = memo(lazy(() => import('./components/NLayerDashboard').then(m => ({ default: m.NLayerDashboard }))));
 const OLayerDashboard = memo(lazy(() => import('./components/OLayerDashboard').then(m => ({ default: m.OLayerDashboard }))));
@@ -82,6 +83,7 @@ type LayerTab = typeof LAYER_TABS[number];
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<LayerTab>('Z_LAYER');
+  const [activeTab, setActiveTab] = useState<TabType>('Z_LAYER');
   const [activeNode, setActiveNode] = useState(MOCK_NODES[0]);
   // ⚡ Bolt Optimization: Use lazy initialization for Date and expensive time series generation
   // Prevents running `new Date()` and `generateTimeSeriesData` (which loops 60 times) on every single render/tick
@@ -288,6 +290,7 @@ export default function App() {
         <div className="flex items-center gap-2 bg-black/40 p-1 rounded-lg border border-gray-800 overflow-x-auto max-w-full">
           {renderedTabs}
         </div>
+        <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
         <div className="flex items-center gap-6 font-mono text-sm shrink-0">
           <div className="flex items-center gap-2">
