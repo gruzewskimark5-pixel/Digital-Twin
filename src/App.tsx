@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, Suspense, lazy, memo } from 'react';
+import React, { useState, useEffect, useRef, Suspense, lazy, memo, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, ReferenceLine } from 'recharts';
 import { Satellite, Globe, Activity, Radio, Clock, Zap, Sun, Moon, ThermometerSun, Database, Play, CheckCircle2, Save, ListTodo, Plus, AlertTriangle, ShieldAlert, Terminal, CheckSquare } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
@@ -71,8 +71,17 @@ const INITIAL_ANOMALIES: Anomaly[] = [
   { id: 'ERR-089', type: 'THERMAL_SPIKE', node: 'SAT-GAMMA-03', severity: 'WARNING', timestamp: new Date().toISOString(), playbook: 'PB-THRM-01' }
 ];
 
+const LAYER_TABS = [
+  'TWIN', 'H_LAYER', 'I_LAYER', 'J_LAYER', 'K_LAYER', 'L_LAYER',
+  'M_LAYER', 'N_LAYER', 'O_LAYER', 'P_LAYER', 'Q_LAYER', 'R_LAYER',
+  'S_LAYER', 'T_LAYER', 'U_LAYER', 'V_LAYER', 'W_LAYER', 'X_LAYER',
+  'Y_LAYER', 'Z_LAYER'
+] as const;
+
+type LayerTab = typeof LAYER_TABS[number];
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'TWIN' | 'H_LAYER' | 'I_LAYER' | 'J_LAYER' | 'K_LAYER' | 'L_LAYER' | 'M_LAYER' | 'N_LAYER' | 'O_LAYER' | 'P_LAYER' | 'Q_LAYER' | 'R_LAYER' | 'S_LAYER' | 'T_LAYER' | 'U_LAYER' | 'V_LAYER' | 'W_LAYER' | 'X_LAYER' | 'Y_LAYER' | 'Z_LAYER'>('Z_LAYER');
+  const [activeTab, setActiveTab] = useState<LayerTab>('Z_LAYER');
   const [activeNode, setActiveNode] = useState(MOCK_NODES[0]);
   // ⚡ Bolt Optimization: Use lazy initialization for Date and expensive time series generation
   // Prevents running `new Date()` and `generateTimeSeriesData` (which loops 60 times) on every single render/tick
@@ -90,6 +99,21 @@ export default function App() {
   // ⚡ Bolt Optimization: Use useInterval pattern to prevent GC churn and timer drift
   // The simulation tick is now a ref that doesn't trigger effect re-runs on state change
   const savedCallback = useRef<(() => void) | null>(null);
+
+  // ⚡ Bolt Optimization: Use useMemo to prevent redundant parsing of 24 tabs
+  // on every tick of the 1-second simulation loop.
+  const renderedTabs = useMemo(() => LAYER_TABS.map(tab => (
+    <button
+      key={tab}
+      onClick={() => setActiveTab(tab)}
+      className={cn(
+        "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
+        activeTab === tab ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
+      )}
+    >
+      {tab.replace('_', '-')}
+    </button>
+  )), [activeTab]);
 
   // ⚡ Bolt Optimization: Use refs to hold latest state for interval
   // This prevents tearing down and recreating the interval every second,
@@ -262,213 +286,7 @@ export default function App() {
         </div>
         
         <div className="flex items-center gap-2 bg-black/40 p-1 rounded-lg border border-gray-800 overflow-x-auto max-w-full">
-          <button 
-            onClick={() => setActiveTab('TWIN')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'TWIN' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            TWIN
-          </button>
-          <button 
-            onClick={() => setActiveTab('H_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'H_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            H-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('I_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'I_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            I-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('J_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'J_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            J-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('K_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'K_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            K-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('L_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'L_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            L-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('M_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'M_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            M-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('N_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'N_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            N-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('O_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'O_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            O-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('P_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'P_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            P-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('Q_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'Q_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            Q-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('R_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'R_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            R-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('S_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'S_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            S-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('T_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'T_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            T-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('U_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'U_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            U-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('V_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'S_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            S-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('T_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'T_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            T-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('U_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'U_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            U-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('V_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'V_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            V-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('W_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'W_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            W-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('X_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'X_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            X-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('Y_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'Y_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            Y-LAYER
-          </button>
-          <button 
-            onClick={() => setActiveTab('Z_LAYER')}
-            className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-              activeTab === 'Z_LAYER' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-            )}
-          >
-            Z-LAYER
-          </button>
+          {renderedTabs}
         </div>
 
         <div className="flex items-center gap-6 font-mono text-sm shrink-0">

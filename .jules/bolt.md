@@ -20,3 +20,7 @@
 ## 2024-06-05 - React lazy and memo wrapper optimization
 **Learning:** In applications utilizing `React.lazy()` for code splitting of large, mostly static dashboard layers, frequent state updates (like a 1-second simulation tick in the parent component) can trigger unnecessary reconciliation or re-evaluations of those lazy-loaded components, even if they aren't directly receiving updated props.
 **Action:** Wrap `React.lazy()` imports with `React.memo()` (e.g., `const MyComponent = memo(lazy(() => import('...')))`) to prevent unnecessary React reconciliation overhead during frequent parent state updates. This ensures that static UI layers remain isolated from the parent's rapid render cycle.
+
+## 2024-06-10 - Memoization of String-Parsing in Frequent Renders
+**Learning:** In a heavily-ticking React application (like a 1s tick simulation), executing string-parsing utilities like `twMerge` or `clsx` (often wrapped as `cn()`) inside repetitive UI blocks (like a list of 24 navigation tabs) on *every single render* causes significant and unnecessary CPU overhead. Even though these utility functions are relatively fast individually, running them dozens of times per second adds up and blocks the main thread.
+**Action:** Use `useMemo` to memoize repetitive UI blocks that rely on string parsing for dynamic class names, ensuring the expensive operations only occur when the actual dependencies (like `activeTab`) change, rather than on every tick of the parent component's render loop.
