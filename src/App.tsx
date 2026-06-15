@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useRef, Suspense, lazy, memo, useMemo } from 'react';
+import React, { useState, useEffect, useRef, Suspense, lazy, memo, useMemo, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, ReferenceLine } from 'recharts';
 import { Satellite, Globe, Activity, Radio, Clock, Zap, Sun, Moon, ThermometerSun, Database, Play, CheckCircle2, Save, ListTodo, Plus, AlertTriangle, ShieldAlert, Terminal, CheckSquare } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { TabNavigation, type TabType } from './components/TabNavigation';
+import { NodeSelector } from './components/NodeSelector';
+import { AnomalyPanel } from './components/AnomalyPanel';
 const MLayerDashboard = memo(lazy(() => import('./components/MLayerDashboard').then(m => ({ default: m.MLayerDashboard }))));
 const NLayerDashboard = memo(lazy(() => import('./components/NLayerDashboard').then(m => ({ default: m.NLayerDashboard }))));
 const OLayerDashboard = memo(lazy(() => import('./components/OLayerDashboard').then(m => ({ default: m.OLayerDashboard }))));
@@ -43,25 +45,7 @@ const generateTimeSeriesData = (startVal: number, volatility: number, trend: num
 
 const MOCK_NODES = ['SAT-ALPHA-01', 'SAT-BETA-02', 'SAT-GAMMA-03'];
 
-type JobStatus = 'QUEUED' | 'RUNNING' | 'CHECKPOINTED' | 'COMPLETED' | 'FAILED';
-interface Job {
-  id: string;
-  task: string;
-  status: JobStatus;
-  node: string | null;
-  progress: number;
-  energyReq: number;
-}
-
-type AnomalySeverity = 'CRITICAL' | 'WARNING' | 'RESOLVED';
-interface Anomaly {
-  id: string;
-  type: string;
-  node: string;
-  severity: AnomalySeverity;
-  timestamp: string;
-  playbook: string;
-}
+import type { Job, Anomaly } from './types';
 
 const INITIAL_JOBS: Job[] = [
   { id: 'JOB-9942', task: 'SAR_IMAGE_PROC', status: 'RUNNING', node: 'SAT-ALPHA-01', progress: 45, energyReq: 120 },
@@ -72,17 +56,7 @@ const INITIAL_ANOMALIES: Anomaly[] = [
   { id: 'ERR-089', type: 'THERMAL_SPIKE', node: 'SAT-GAMMA-03', severity: 'WARNING', timestamp: new Date().toISOString(), playbook: 'PB-THRM-01' }
 ];
 
-const LAYER_TABS = [
-  'TWIN', 'H_LAYER', 'I_LAYER', 'J_LAYER', 'K_LAYER', 'L_LAYER',
-  'M_LAYER', 'N_LAYER', 'O_LAYER', 'P_LAYER', 'Q_LAYER', 'R_LAYER',
-  'S_LAYER', 'T_LAYER', 'U_LAYER', 'V_LAYER', 'W_LAYER', 'X_LAYER',
-  'Y_LAYER', 'Z_LAYER'
-] as const;
-
-type LayerTab = typeof LAYER_TABS[number];
-
 export default function App() {
-  const [activeTab, setActiveTab] = useState<LayerTab>('Z_LAYER');
   const [activeTab, setActiveTab] = useState<TabType>('Z_LAYER');
   const [activeNode, setActiveNode] = useState(MOCK_NODES[0]);
   // ⚡ Bolt Optimization: Use lazy initialization for Date and expensive time series generation
@@ -101,21 +75,6 @@ export default function App() {
   // ⚡ Bolt Optimization: Use useInterval pattern to prevent GC churn and timer drift
   // The simulation tick is now a ref that doesn't trigger effect re-runs on state change
   const savedCallback = useRef<(() => void) | null>(null);
-
-  // ⚡ Bolt Optimization: Use useMemo to prevent redundant parsing of 24 tabs
-  // on every tick of the 1-second simulation loop.
-  const renderedTabs = useMemo(() => LAYER_TABS.map(tab => (
-    <button
-      key={tab}
-      onClick={() => setActiveTab(tab)}
-      className={cn(
-        "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-        activeTab === tab ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-      )}
-    >
-      {tab.replace('_', '-')}
-    </button>
-  )), [activeTab]);
 
   // ⚡ Bolt Optimization: Use refs to hold latest state for interval
   // This prevents tearing down and recreating the interval every second,
@@ -225,7 +184,9 @@ export default function App() {
     setJobs(prev => [newJob, ...prev]);
   };
 
-  const injectAnomaly = () => {
+  // ⚡ Bolt Optimization: Use useCallback to maintain referential equality across
+  // simulation ticks, allowing child components like AnomalyPanel to skip re-renders.
+  const injectAnomaly = useCallback(() => {
     const types = ['POWER_DRAIN_ANOMALY', 'ATTITUDE_LOSS', 'OBC_RADIATION_UPSET'];
     const playbooks = ['PB-PWR-02', 'PB-ATT-01', 'PB-RAD-03'];
     const idx = Math.floor(Math.random() * types.length);
@@ -238,11 +199,13 @@ export default function App() {
       playbook: playbooks[idx]
     };
     setAnomalies(prev => [newAnomaly, ...prev]);
-  };
+  }, []);
 
-  const executePlaybook = (id: string) => {
+  // ⚡ Bolt Optimization: Use useCallback to maintain referential equality across
+  // simulation ticks, allowing child components like AnomalyPanel to skip re-renders.
+  const executePlaybook = useCallback((id: string) => {
     setAnomalies(prev => prev.map(a => a.id === id ? { ...a, severity: 'RESOLVED' } : a));
-  };
+  }, []);
 
   const currentPower = powerData[powerData.length - 1].value;
   const currentTemp = thermalData[thermalData.length - 1].value;
@@ -287,9 +250,6 @@ export default function App() {
           </div>
         </div>
         
-        <div className="flex items-center gap-2 bg-black/40 p-1 rounded-lg border border-gray-800 overflow-x-auto max-w-full">
-          {renderedTabs}
-        </div>
         <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
         <div className="flex items-center gap-6 font-mono text-sm shrink-0">
@@ -359,26 +319,7 @@ export default function App() {
         <div className="lg:col-span-3 flex flex-col gap-6">
           <div className="glass-panel rounded-xl p-4 flex flex-col gap-4">
             <h2 className="text-xs font-mono text-gray-400 uppercase tracking-widest border-b border-gray-800 pb-2">Active Node</h2>
-            <div className="flex flex-col gap-2">
-              {MOCK_NODES.map(node => (
-                <button
-                  key={node}
-                  onClick={() => setActiveNode(node)}
-                  className={cn(
-                    "flex items-center justify-between p-3 rounded-lg border transition-all text-left font-mono text-sm",
-                    activeNode === node 
-                      ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-400" 
-                      : "bg-black/40 border-gray-800 text-gray-400 hover:border-gray-600"
-                  )}
-                >
-                  <div className="flex items-center gap-2">
-                    <Satellite className="w-4 h-4" />
-                    {node}
-                  </div>
-                  {activeNode === node && <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />}
-                </button>
-              ))}
-            </div>
+            <NodeSelector activeNode={activeNode} setActiveNode={setActiveNode} />
           </div>
 
           <div className="glass-panel rounded-xl p-4 flex flex-col gap-4 flex-1">
@@ -555,68 +496,7 @@ export default function App() {
             </div>
 
             {/* M-LAYER: ANOMALY RESPONSE */}
-            <div className="glass-panel rounded-xl p-5 border-l-4 border-l-red-500/50 flex flex-col gap-4">
-              <div className="flex justify-between items-center border-b border-gray-800 pb-3">
-                <div className="flex items-center gap-2">
-                  <ShieldAlert className="w-5 h-5 text-red-500" />
-                  <h2 className="text-sm font-mono text-gray-300 uppercase tracking-widest">M-Layer: Playbooks</h2>
-                </div>
-                <button 
-                  onClick={injectAnomaly}
-                  className="flex items-center gap-1 px-3 py-1.5 bg-red-500/20 text-red-400 border border-red-500/50 rounded hover:bg-red-500/30 transition-colors font-mono text-xs cursor-pointer"
-                >
-                  <AlertTriangle className="w-3 h-3" /> FAULT INJECT
-                </button>
-              </div>
-              
-              <div className="flex flex-col gap-2 overflow-y-auto max-h-[250px] pr-2">
-                {anomalies.map(anomaly => (
-                  <div key={anomaly.id} className={cn(
-                    "flex flex-col gap-3 p-3 border rounded-lg font-mono text-xs transition-colors",
-                    anomaly.severity === 'CRITICAL' ? "bg-red-500/10 border-red-500/30" :
-                    anomaly.severity === 'WARNING' ? "bg-amber-500/10 border-amber-500/30" :
-                    "bg-emerald-500/10 border-emerald-500/30 opacity-60"
-                  )}>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className={cn(
-                          "font-bold",
-                          anomaly.severity === 'CRITICAL' ? "text-red-400" :
-                          anomaly.severity === 'WARNING' ? "text-amber-400" :
-                          "text-emerald-400"
-                        )}>{anomaly.id}</span>
-                        <span className="text-gray-300">{anomaly.type}</span>
-                      </div>
-                      <span className="text-gray-500">{anomaly.timestamp.split('T')[1].slice(0, 8)}</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="px-2 py-1 bg-black/40 text-gray-400 rounded border border-gray-700 flex items-center gap-1">
-                        <Satellite className="w-3 h-3" /> {anomaly.node}
-                      </span>
-                      
-                      {anomaly.severity !== 'RESOLVED' ? (
-                        <button 
-                          onClick={() => executePlaybook(anomaly.id)}
-                          className="flex items-center gap-1 px-3 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded border border-gray-600 transition-colors cursor-pointer"
-                        >
-                          <Terminal className="w-3 h-3" /> EXEC {anomaly.playbook}
-                        </button>
-                      ) : (
-                        <span className="flex items-center gap-1 text-emerald-500">
-                          <CheckSquare className="w-4 h-4" /> RESOLVED
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                {anomalies.length === 0 && (
-                  <div className="text-center text-gray-500 font-mono text-xs py-8">
-                    NO ACTIVE ANOMALIES.
-                  </div>
-                )}
-              </div>
-            </div>
+            <AnomalyPanel anomalies={anomalies} injectAnomaly={injectAnomaly} executePlaybook={executePlaybook} />
 
           </div>
           </div>
