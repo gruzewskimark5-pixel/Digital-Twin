@@ -72,17 +72,7 @@ const INITIAL_ANOMALIES: Anomaly[] = [
   { id: 'ERR-089', type: 'THERMAL_SPIKE', node: 'SAT-GAMMA-03', severity: 'WARNING', timestamp: new Date().toISOString(), playbook: 'PB-THRM-01' }
 ];
 
-const LAYER_TABS = [
-  'TWIN', 'H_LAYER', 'I_LAYER', 'J_LAYER', 'K_LAYER', 'L_LAYER',
-  'M_LAYER', 'N_LAYER', 'O_LAYER', 'P_LAYER', 'Q_LAYER', 'R_LAYER',
-  'S_LAYER', 'T_LAYER', 'U_LAYER', 'V_LAYER', 'W_LAYER', 'X_LAYER',
-  'Y_LAYER', 'Z_LAYER'
-] as const;
-
-type LayerTab = typeof LAYER_TABS[number];
-
 export default function App() {
-  const [activeTab, setActiveTab] = useState<LayerTab>('Z_LAYER');
   const [activeTab, setActiveTab] = useState<TabType>('Z_LAYER');
   const [activeNode, setActiveNode] = useState(MOCK_NODES[0]);
   // ⚡ Bolt Optimization: Use lazy initialization for Date and expensive time series generation
@@ -101,21 +91,6 @@ export default function App() {
   // ⚡ Bolt Optimization: Use useInterval pattern to prevent GC churn and timer drift
   // The simulation tick is now a ref that doesn't trigger effect re-runs on state change
   const savedCallback = useRef<(() => void) | null>(null);
-
-  // ⚡ Bolt Optimization: Use useMemo to prevent redundant parsing of 24 tabs
-  // on every tick of the 1-second simulation loop.
-  const renderedTabs = useMemo(() => LAYER_TABS.map(tab => (
-    <button
-      key={tab}
-      onClick={() => setActiveTab(tab)}
-      className={cn(
-        "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-        activeTab === tab ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-      )}
-    >
-      {tab.replace('_', '-')}
-    </button>
-  )), [activeTab]);
 
   // ⚡ Bolt Optimization: Use refs to hold latest state for interval
   // This prevents tearing down and recreating the interval every second,
@@ -240,9 +215,76 @@ export default function App() {
     setAnomalies(prev => [newAnomaly, ...prev]);
   };
 
-  const executePlaybook = (id: string) => {
+  const executePlaybook = React.useCallback((id: string) => {
     setAnomalies(prev => prev.map(a => a.id === id ? { ...a, severity: 'RESOLVED' } : a));
-  };
+  }, []);
+
+  // ⚡ Bolt Optimization: Use useMemo to prevent redundant string parsing
+  // The MOCK_NODES list relies on `cn()` for dynamic styling which runs on every single
+  // render (1-second tick loop). Memoizing this block ensures we only re-evaluate it
+  // when `activeNode` actually changes.
+  const renderedNodes = useMemo(() => MOCK_NODES.map(node => (
+    <button
+      key={node}
+      onClick={() => setActiveNode(node)}
+      className={cn(
+        "flex items-center justify-between p-3 rounded-lg border transition-all text-left font-mono text-sm",
+        activeNode === node
+          ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-400"
+          : "bg-black/40 border-gray-800 text-gray-400 hover:border-gray-600"
+      )}
+    >
+      <div className="flex items-center gap-2">
+        <Satellite className="w-4 h-4" />
+        {node}
+      </div>
+      {activeNode === node && <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />}
+    </button>
+  )), [activeNode]);
+
+  // ⚡ Bolt Optimization: Use useMemo to prevent redundant string parsing in anomaly list
+  // Similar to MOCK_NODES, this list parses many strings via `cn()` inside the render loop.
+  // We only need to re-render these items when `anomalies` change, saving CPU cycles on each tick.
+  const renderedAnomalies = useMemo(() => anomalies.map(anomaly => (
+    <div key={anomaly.id} className={cn(
+      "flex flex-col gap-3 p-3 border rounded-lg font-mono text-xs transition-colors",
+      anomaly.severity === 'CRITICAL' ? "bg-red-500/10 border-red-500/30" :
+      anomaly.severity === 'WARNING' ? "bg-amber-500/10 border-amber-500/30" :
+      "bg-emerald-500/10 border-emerald-500/30 opacity-60"
+    )}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className={cn(
+            "font-bold",
+            anomaly.severity === 'CRITICAL' ? "text-red-400" :
+            anomaly.severity === 'WARNING' ? "text-amber-400" :
+            "text-emerald-400"
+          )}>{anomaly.id}</span>
+          <span className="text-gray-300">{anomaly.type}</span>
+        </div>
+        <span className="text-gray-500">{anomaly.timestamp.split('T')[1].slice(0, 8)}</span>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <span className="px-2 py-1 bg-black/40 text-gray-400 rounded border border-gray-700 flex items-center gap-1">
+          <Satellite className="w-3 h-3" /> {anomaly.node}
+        </span>
+
+        {anomaly.severity !== 'RESOLVED' ? (
+          <button
+            onClick={() => executePlaybook(anomaly.id)}
+            className="flex items-center gap-1 px-3 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded border border-gray-600 transition-colors cursor-pointer"
+          >
+            <Terminal className="w-3 h-3" /> EXEC {anomaly.playbook}
+          </button>
+        ) : (
+          <span className="flex items-center gap-1 text-emerald-500">
+            <CheckSquare className="w-4 h-4" /> RESOLVED
+          </span>
+        )}
+      </div>
+    </div>
+  )), [anomalies, executePlaybook]);
 
   const currentPower = powerData[powerData.length - 1].value;
   const currentTemp = thermalData[thermalData.length - 1].value;
@@ -287,9 +329,6 @@ export default function App() {
           </div>
         </div>
         
-        <div className="flex items-center gap-2 bg-black/40 p-1 rounded-lg border border-gray-800 overflow-x-auto max-w-full">
-          {renderedTabs}
-        </div>
         <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
         <div className="flex items-center gap-6 font-mono text-sm shrink-0">
@@ -360,24 +399,7 @@ export default function App() {
           <div className="glass-panel rounded-xl p-4 flex flex-col gap-4">
             <h2 className="text-xs font-mono text-gray-400 uppercase tracking-widest border-b border-gray-800 pb-2">Active Node</h2>
             <div className="flex flex-col gap-2">
-              {MOCK_NODES.map(node => (
-                <button
-                  key={node}
-                  onClick={() => setActiveNode(node)}
-                  className={cn(
-                    "flex items-center justify-between p-3 rounded-lg border transition-all text-left font-mono text-sm",
-                    activeNode === node 
-                      ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-400" 
-                      : "bg-black/40 border-gray-800 text-gray-400 hover:border-gray-600"
-                  )}
-                >
-                  <div className="flex items-center gap-2">
-                    <Satellite className="w-4 h-4" />
-                    {node}
-                  </div>
-                  {activeNode === node && <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />}
-                </button>
-              ))}
+              {renderedNodes}
             </div>
           </div>
 
@@ -570,46 +592,7 @@ export default function App() {
               </div>
               
               <div className="flex flex-col gap-2 overflow-y-auto max-h-[250px] pr-2">
-                {anomalies.map(anomaly => (
-                  <div key={anomaly.id} className={cn(
-                    "flex flex-col gap-3 p-3 border rounded-lg font-mono text-xs transition-colors",
-                    anomaly.severity === 'CRITICAL' ? "bg-red-500/10 border-red-500/30" :
-                    anomaly.severity === 'WARNING' ? "bg-amber-500/10 border-amber-500/30" :
-                    "bg-emerald-500/10 border-emerald-500/30 opacity-60"
-                  )}>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className={cn(
-                          "font-bold",
-                          anomaly.severity === 'CRITICAL' ? "text-red-400" :
-                          anomaly.severity === 'WARNING' ? "text-amber-400" :
-                          "text-emerald-400"
-                        )}>{anomaly.id}</span>
-                        <span className="text-gray-300">{anomaly.type}</span>
-                      </div>
-                      <span className="text-gray-500">{anomaly.timestamp.split('T')[1].slice(0, 8)}</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="px-2 py-1 bg-black/40 text-gray-400 rounded border border-gray-700 flex items-center gap-1">
-                        <Satellite className="w-3 h-3" /> {anomaly.node}
-                      </span>
-                      
-                      {anomaly.severity !== 'RESOLVED' ? (
-                        <button 
-                          onClick={() => executePlaybook(anomaly.id)}
-                          className="flex items-center gap-1 px-3 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded border border-gray-600 transition-colors cursor-pointer"
-                        >
-                          <Terminal className="w-3 h-3" /> EXEC {anomaly.playbook}
-                        </button>
-                      ) : (
-                        <span className="flex items-center gap-1 text-emerald-500">
-                          <CheckSquare className="w-4 h-4" /> RESOLVED
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                {renderedAnomalies}
                 {anomalies.length === 0 && (
                   <div className="text-center text-gray-500 font-mono text-xs py-8">
                     NO ACTIVE ANOMALIES.
