@@ -27,3 +27,7 @@
 ## 2026-06-09 - React.memo for large static UI elements
 **Learning:** Extracting large, relatively static chunks of UI (like a long navigation bar iterating over 20+ tabs) into separate `React.memo()` components prevents them from unnecessarily re-rendering. This is especially important in applications with hot render loops (like 1-second simulation ticks) where executing string-parsing utility functions (e.g., `clsx`, `twMerge`) dozens of times per second across all tabs can block the main thread and impact overall app performance.
 **Action:** Use `React.memo()` on mostly-static presentation components to insulate them from rapidly changing parent state (like simulation tickers).
+
+## 2024-03-24 - [Tick Loop Optimization]
+**Learning:** In applications utilizing a rapid `setInterval` tick loop to simulate real-time telemetry (like `App.tsx` running at 1Hz), React state updates inside the loop force regular component re-renders. Large blocks of static UI, especially those performing string parsing and object allocations (e.g., via `twMerge` and `clsx`), become significant performance bottlenecks during these re-renders.
+**Action:** Extract large, state-independent sections of UI into separate components and aggressively wrap them in `React.memo()`. Ensure any handlers passed down to these memoized blocks are also wrapped in `React.useCallback()` with appropriate dependency arrays to preserve referential equality and prevent the memoized components from unnecessarily evaluating their render trees.
