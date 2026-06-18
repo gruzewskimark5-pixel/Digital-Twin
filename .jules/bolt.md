@@ -27,3 +27,7 @@
 ## 2026-06-09 - React.memo for large static UI elements
 **Learning:** Extracting large, relatively static chunks of UI (like a long navigation bar iterating over 20+ tabs) into separate `React.memo()` components prevents them from unnecessarily re-rendering. This is especially important in applications with hot render loops (like 1-second simulation ticks) where executing string-parsing utility functions (e.g., `clsx`, `twMerge`) dozens of times per second across all tabs can block the main thread and impact overall app performance.
 **Action:** Use `React.memo()` on mostly-static presentation components to insulate them from rapidly changing parent state (like simulation tickers).
+
+## 2024-06-18 - [twMerge/clsx Performance Overhead in High-Frequency React Re-Renders]
+**Learning:** `twMerge` and `clsx` introduce noticeable performance overhead when placed inside complex UI blocks that re-render very frequently (e.g., inside a React component governed by a 1-second simulation tick loop), as they are forced to re-parse large strings repeatedly.
+**Action:** Always isolate non-dynamic, complex UI blocks into smaller components and wrap them with `React.memo` to shield them from the main tick loop, thus bypassing the string parsing overhead.
