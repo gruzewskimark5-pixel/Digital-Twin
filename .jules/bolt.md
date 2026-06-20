@@ -27,3 +27,7 @@
 ## 2026-06-09 - React.memo for large static UI elements
 **Learning:** Extracting large, relatively static chunks of UI (like a long navigation bar iterating over 20+ tabs) into separate `React.memo()` components prevents them from unnecessarily re-rendering. This is especially important in applications with hot render loops (like 1-second simulation ticks) where executing string-parsing utility functions (e.g., `clsx`, `twMerge`) dozens of times per second across all tabs can block the main thread and impact overall app performance.
 **Action:** Use `React.memo()` on mostly-static presentation components to insulate them from rapidly changing parent state (like simulation tickers).
+
+## 2023-10-25 - Extracting Array Elements into React.memo Components
+**Learning:** For UI components rendering from an array map (especially ones running on a fast `setInterval` loop like `App.tsx`), inline string-parsing operations like `cn(...)`/`twMerge(...)` and DOM reconciliations add significant overhead every tick. Relying only on stable keys isn't enough; the parent component's state change triggers a full re-render of all child nodes unless they are isolated.
+**Action:** Always extract individual list elements into standalone functional components and wrap them in `React.memo` (along with wrapping handler functions in `useCallback` on the parent). This explicitly informs React to bypass reconciliation for these specific nodes during fast state ticks, ensuring `O(1)` updates rather than `O(N)`.
