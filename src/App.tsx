@@ -145,7 +145,68 @@ const AnomalyItem = memo(({ anomaly, onExecute }: { anomaly: Anomaly, onExecute:
   </div>
 ));
 
+// ⚡ Bolt Optimization: Memoize NodeStatusIndicators to prevent evaluating static DOM nodes and twMerge on every 1s tick
+const NodeStatusIndicators = memo(({ isEclipse }: { isEclipse: boolean }) => (
+  <div className="grid grid-cols-2 gap-4">
+    <div className="bg-black/40 p-3 rounded-lg border border-gray-800">
+      <p className="text-[10px] font-mono text-gray-500 mb-1">ILLUMINATION</p>
+      <div className="flex items-center gap-2">
+        {isEclipse ? <Moon className="w-4 h-4 text-indigo-400" /> : <Sun className="w-4 h-4 text-amber-400" />}
+        <span className={cn("font-mono font-bold", isEclipse ? "text-indigo-400" : "text-amber-400")}>
+          {isEclipse ? 'ECLIPSE' : 'SUNLIT'}
+        </span>
+      </div>
+    </div>
+
+    <div className="bg-black/40 p-3 rounded-lg border border-gray-800">
+      <p className="text-[10px] font-mono text-gray-500 mb-1">LINK STATE</p>
+      <div className="flex items-center gap-2">
+        <Radio className="w-4 h-4 text-emerald-500" />
+        <span className="font-mono font-bold text-emerald-500">AOS</span>
+      </div>
+    </div>
+  </div>
+));
+
 // ⚡ Bolt Optimization: Memoize NodeItem to prevent re-rendering list items.
+// ⚡ Bolt Optimization: Memoize HeaderTitle to prevent evaluating the large 24-layer ternary on every 1s tick
+const HeaderTitle = memo(({ activeTab }: { activeTab: TabType }) => (
+  <div className="flex items-center gap-3">
+    <div className="p-2 bg-emerald-500/20 rounded-lg border border-emerald-500/50">
+      <Globe className="w-6 h-6 neon-text-green" />
+    </div>
+    <div>
+      <h1 className="text-xl font-bold tracking-widest text-white">DIGITAL TWIN COMMAND CENTER</h1>
+      <p className="text-xs font-mono text-emerald-400 opacity-80">
+        {activeTab === 'TWIN' ? 'L-LAYER: DIGITAL TWIN ACTIVE' :
+         activeTab === 'H_LAYER' ? 'H-LAYER: KERNEL IMPLEMENTATION PLAN ACTIVE' :
+         activeTab === 'I_LAYER' ? 'I-LAYER: MULTI-AGENT TEST HARNESS ACTIVE' :
+         activeTab === 'J_LAYER' ? 'J-LAYER: UNIFIED UX LANGUAGE ACTIVE' :
+         activeTab === 'K_LAYER' ? 'K-LAYER: KERNEL CODE SKELETON ACTIVE' :
+         activeTab === 'L_LAYER' ? 'L-LAYER: THE AGENT SDK ACTIVE' :
+         activeTab === 'M_LAYER' ? 'M-LAYER: SURFACE INTEGRATION KIT ACTIVE' :
+         activeTab === 'N_LAYER' ? 'N-LAYER: KERNEL TEST SUITE ACTIVE' :
+         activeTab === 'O_LAYER' ? 'O-LAYER: KERNEL DEPLOYMENT BLUEPRINT ACTIVE' :
+         activeTab === 'P_LAYER' ? 'P-LAYER: KERNEL RUNTIME DASHBOARD ACTIVE' :
+         activeTab === 'Q_LAYER' ? 'Q-LAYER: KERNEL EVOLUTION PROTOCOL ACTIVE' :
+         activeTab === 'R_LAYER' ? 'R-LAYER: KERNEL GOVERNANCE LAYER ACTIVE' :
+         activeTab === 'S_LAYER' ? 'S-LAYER: THE INVARIANT REGISTRY ACTIVE' :
+         activeTab === 'T_LAYER' ? 'T-LAYER: THE AUTONOMIC ENGINE ACTIVE' :
+         activeTab === 'U_LAYER' ? 'U-LAYER: THE ZENITH LAYER ACTIVE' :
+         activeTab === 'V_LAYER' ? 'V-LAYER: THE SOVEREIGN RUNTIME ACTIVE' :
+         activeTab === 'W_LAYER' ? 'W-LAYER: THE OPERATOR CONSOLE ACTIVE' :
+         activeTab === 'X_LAYER' ? 'X-LAYER: MULTI-SURFACE FEDERATION LAYER ACTIVE' :
+         activeTab === 'Y_LAYER' ? 'Y-LAYER: THE ADAPTIVE DOCTRINE ENGINE ACTIVE' :
+         activeTab === 'Z_LAYER' ? 'Z-LAYER: THE FINAL SYNTHESIS ACTIVE' :
+         activeTab === 'AA_LAYER' ? 'AA-LAYER: THE META-LAYER ACTIVE' :
+         activeTab === 'AB_LAYER' ? 'AB-LAYER: THE CONSCIOUSNESS BOUNDARY ACTIVE' :
+         activeTab === 'AC_LAYER' ? 'AC-LAYER: THE TEMPORAL COMPUTE LAYER ACTIVE' :
+         'AD-LAYER: THE DYSON COMPUTE SHELL ACTIVE'}
+      </p>
+    </div>
+  </div>
+));
+
 const NodeItem = memo(({ node, activeNode, onSelect }: { node: string, activeNode: string, onSelect: (node: string) => void }) => (
   <button
     onClick={() => onSelect(node)}
@@ -328,44 +389,18 @@ export default function App() {
   const currentTemp = thermalData[thermalData.length - 1].value;
   const thermalHeadroom = 80 - currentTemp; // Max temp 80C
 
+  // ⚡ Bolt Optimization: Memoize dynamic class names to avoid running twMerge string parsing on every 1s tick
+  const isPowerCritical = currentPower < 20;
+  const powerClass = useMemo(() => cn("font-bold text-lg", isPowerCritical ? "text-red-500" : "text-amber-500"), [isPowerCritical]);
+
+  const isThermalCritical = thermalHeadroom < 10;
+  const thermalClass = useMemo(() => cn("font-bold text-lg", isThermalCritical ? "text-red-500" : "text-emerald-500"), [isThermalCritical]);
+
   return (
     <div className="min-h-screen p-4 md:p-6 flex flex-col gap-6">
       {/* HEADER */}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 glass-panel p-4 rounded-xl">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-emerald-500/20 rounded-lg border border-emerald-500/50">
-            <Globe className="w-6 h-6 neon-text-green" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold tracking-widest text-white">DIGITAL TWIN COMMAND CENTER</h1>
-            <p className="text-xs font-mono text-emerald-400 opacity-80">
-              {activeTab === 'TWIN' ? 'L-LAYER: DIGITAL TWIN ACTIVE' : 
-               activeTab === 'H_LAYER' ? 'H-LAYER: KERNEL IMPLEMENTATION PLAN ACTIVE' :
-               activeTab === 'I_LAYER' ? 'I-LAYER: MULTI-AGENT TEST HARNESS ACTIVE' :
-               activeTab === 'J_LAYER' ? 'J-LAYER: UNIFIED UX LANGUAGE ACTIVE' :
-               activeTab === 'K_LAYER' ? 'K-LAYER: KERNEL CODE SKELETON ACTIVE' :
-               activeTab === 'L_LAYER' ? 'L-LAYER: THE AGENT SDK ACTIVE' :
-               activeTab === 'M_LAYER' ? 'M-LAYER: SURFACE INTEGRATION KIT ACTIVE' :
-               activeTab === 'N_LAYER' ? 'N-LAYER: KERNEL TEST SUITE ACTIVE' :
-               activeTab === 'O_LAYER' ? 'O-LAYER: KERNEL DEPLOYMENT BLUEPRINT ACTIVE' :
-               activeTab === 'P_LAYER' ? 'P-LAYER: KERNEL RUNTIME DASHBOARD ACTIVE' :
-               activeTab === 'Q_LAYER' ? 'Q-LAYER: KERNEL EVOLUTION PROTOCOL ACTIVE' :
-               activeTab === 'R_LAYER' ? 'R-LAYER: KERNEL GOVERNANCE LAYER ACTIVE' :
-               activeTab === 'S_LAYER' ? 'S-LAYER: THE INVARIANT REGISTRY ACTIVE' :
-               activeTab === 'T_LAYER' ? 'T-LAYER: THE AUTONOMIC ENGINE ACTIVE' :
-               activeTab === 'U_LAYER' ? 'U-LAYER: THE ZENITH LAYER ACTIVE' :
-               activeTab === 'V_LAYER' ? 'V-LAYER: THE SOVEREIGN RUNTIME ACTIVE' :
-               activeTab === 'W_LAYER' ? 'W-LAYER: THE OPERATOR CONSOLE ACTIVE' :
-               activeTab === 'X_LAYER' ? 'X-LAYER: MULTI-SURFACE FEDERATION LAYER ACTIVE' :
-               activeTab === 'Y_LAYER' ? 'Y-LAYER: THE ADAPTIVE DOCTRINE ENGINE ACTIVE' :
-               activeTab === 'Z_LAYER' ? 'Z-LAYER: THE FINAL SYNTHESIS ACTIVE' :
-               activeTab === 'AA_LAYER' ? 'AA-LAYER: THE META-LAYER ACTIVE' :
-               activeTab === 'AB_LAYER' ? 'AB-LAYER: THE CONSCIOUSNESS BOUNDARY ACTIVE' :
-               activeTab === 'AC_LAYER' ? 'AC-LAYER: THE TEMPORAL COMPUTE LAYER ACTIVE' :
-               'AD-LAYER: THE DYSON COMPUTE SHELL ACTIVE'}
-            </p>
-          </div>
-        </div>
+        <HeaderTitle activeTab={activeTab} />
         
         <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
@@ -451,25 +486,7 @@ export default function App() {
           <div className="glass-panel rounded-xl p-4 flex flex-col gap-4 flex-1">
             <h2 className="text-xs font-mono text-gray-400 uppercase tracking-widest border-b border-gray-800 pb-2">Node Status</h2>
             
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-black/40 p-3 rounded-lg border border-gray-800">
-                <p className="text-[10px] font-mono text-gray-500 mb-1">ILLUMINATION</p>
-                <div className="flex items-center gap-2">
-                  {isEclipse ? <Moon className="w-4 h-4 text-indigo-400" /> : <Sun className="w-4 h-4 text-amber-400" />}
-                  <span className={cn("font-mono font-bold", isEclipse ? "text-indigo-400" : "text-amber-400")}>
-                    {isEclipse ? 'ECLIPSE' : 'SUNLIT'}
-                  </span>
-                </div>
-              </div>
-              
-              <div className="bg-black/40 p-3 rounded-lg border border-gray-800">
-                <p className="text-[10px] font-mono text-gray-500 mb-1">LINK STATE</p>
-                <div className="flex items-center gap-2">
-                  <Radio className="w-4 h-4 text-emerald-500" />
-                  <span className="font-mono font-bold text-emerald-500">AOS</span>
-                </div>
-              </div>
-            </div>
+            <NodeStatusIndicators isEclipse={isEclipse} />
 
             <div className="mt-auto">
               <p className="text-[10px] font-mono text-gray-500 mb-2">TELEMETRY INGESTION LOG</p>
@@ -501,7 +518,7 @@ export default function App() {
                 <div className="flex items-center gap-4 font-mono text-sm">
                   <div className="flex flex-col items-end">
                     <span className="text-[10px] text-gray-500">CURRENT SOC</span>
-                    <span className={cn("font-bold text-lg", currentPower < 20 ? "text-red-500" : "text-amber-500")}>
+                    <span className={powerClass}>
                       {currentPower.toFixed(1)}%
                     </span>
                   </div>
@@ -545,7 +562,7 @@ export default function App() {
                   </div>
                   <div className="flex flex-col items-end">
                     <span className="text-[10px] text-gray-500">HEADROOM</span>
-                    <span className={cn("font-bold text-lg", thermalHeadroom < 10 ? "text-red-500" : "text-emerald-500")}>
+                    <span className={thermalClass}>
                       {thermalHeadroom.toFixed(1)}°C
                     </span>
                   </div>

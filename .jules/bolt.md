@@ -31,3 +31,7 @@
 ## 2023-10-25 - Extracting Array Elements into React.memo Components
 **Learning:** For UI components rendering from an array map (especially ones running on a fast `setInterval` loop like `App.tsx`), inline string-parsing operations like `cn(...)`/`twMerge(...)` and DOM reconciliations add significant overhead every tick. Relying only on stable keys isn't enough; the parent component's state change triggers a full re-render of all child nodes unless they are isolated.
 **Action:** Always extract individual list elements into standalone functional components and wrap them in `React.memo` (along with wrapping handler functions in `useCallback` on the parent). This explicitly informs React to bypass reconciliation for these specific nodes during fast state ticks, ensuring `O(1)` updates rather than `O(N)`.
+
+## 2024-05-18 - [Avoid twMerge string parsing on interval-tick re-renders]
+**Learning:** In dashboards relying on frequent setInterval ticks (like 1s telemetry), executing twMerge/clsx inside the main render loop causes significant string parsing overhead, especially for static headers or classes that evaluate to the same string 99% of the time.
+**Action:** Extract static HTML blocks into `React.memo` components, and for dynamic classes whose conditions rarely toggle (e.g. `currentPower < 20`), use `useMemo(() => cn(...), [condition])` to cache the merged string instead of parsing it every tick.
