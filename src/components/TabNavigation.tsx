@@ -36,20 +36,38 @@ interface TabNavigationProps {
   onTabChange: (tab: TabType) => void;
 }
 
+interface TabItemProps {
+  tab: { id: TabType; label: string };
+  isActive: boolean;
+  onTabChange: (tab: TabType) => void;
+}
+
+// ⚡ Bolt Optimization: Memoize TabItem to prevent re-evaluating `twMerge` and DOM reconciliation
+// on all 20 inactive tabs when the active tab changes.
+const TabItem = memo(function TabItem({ tab, isActive, onTabChange }: TabItemProps) {
+  return (
+    <button
+      onClick={() => onTabChange(tab.id)}
+      className={cn(
+        "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
+        isActive ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
+      )}
+    >
+      {tab.label}
+    </button>
+  );
+});
+
 export const TabNavigation = memo(function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
   return (
     <div className="flex items-center gap-2 bg-black/40 p-1 rounded-lg border border-gray-800 overflow-x-auto max-w-full">
       {TABS.map(tab => (
-        <button
+        <TabItem
           key={tab.id}
-          onClick={() => onTabChange(tab.id)}
-          className={cn(
-            "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-            activeTab === tab.id ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-          )}
-        >
-          {tab.label}
-        </button>
+          tab={tab}
+          isActive={activeTab === tab.id}
+          onTabChange={onTabChange}
+        />
       ))}
     </div>
   );
