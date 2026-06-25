@@ -36,20 +36,30 @@ interface TabNavigationProps {
   onTabChange: (tab: TabType) => void;
 }
 
+// ⚡ Bolt Optimization: Memoize individual tab items to prevent evaluating `cn(...)`/`twMerge`
+// for all ~20 tabs on every single render (every 1s tick in the parent `App`).
+const TabItem = memo(({ tab, isActive, onClick }: { tab: { id: TabType; label: string }, isActive: boolean, onClick: (tabId: TabType) => void }) => (
+  <button
+    onClick={() => onClick(tab.id)}
+    className={cn(
+      "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
+      isActive ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
+    )}
+  >
+    {tab.label}
+  </button>
+));
+
 export const TabNavigation = memo(function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
   return (
     <div className="flex items-center gap-2 bg-black/40 p-1 rounded-lg border border-gray-800 overflow-x-auto max-w-full">
       {TABS.map(tab => (
-        <button
+        <TabItem
           key={tab.id}
-          onClick={() => onTabChange(tab.id)}
-          className={cn(
-            "px-3 py-1.5 rounded-md text-xs font-mono font-bold transition-colors whitespace-nowrap",
-            activeTab === tab.id ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" : "text-gray-500 hover:text-gray-300"
-          )}
-        >
-          {tab.label}
-        </button>
+          tab={tab}
+          isActive={activeTab === tab.id}
+          onClick={onTabChange}
+        />
       ))}
     </div>
   );
