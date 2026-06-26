@@ -35,3 +35,6 @@
 ## 2024-05-18 - [Avoid twMerge string parsing on interval-tick re-renders]
 **Learning:** In dashboards relying on frequent setInterval ticks (like 1s telemetry), executing twMerge/clsx inside the main render loop causes significant string parsing overhead, especially for static headers or classes that evaluate to the same string 99% of the time.
 **Action:** Extract static HTML blocks into `React.memo` components, and for dynamic classes whose conditions rarely toggle (e.g. `currentPower < 20`), use `useMemo(() => cn(...), [condition])` to cache the merged string instead of parsing it every tick.
+## 2026-06-26 - [Optimize Main Grid structural memoization]
+**Learning:** In highly dynamic components with complex state (like `App.tsx` running a 1-second simulation tick), structural memoization is critical. Relying purely on value-based array references is not enough; extracting static or slowly-changing UI structures into standalone `React.memo()` components prevents wide-scale render thrashing caused by constant parent tick states.
+**Action:** Always extract and memoize isolated sub-panels (e.g., node selectors, active lists) inside high-frequency containers to prune the render tree.
