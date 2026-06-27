@@ -35,3 +35,7 @@
 ## 2024-05-18 - [Avoid twMerge string parsing on interval-tick re-renders]
 **Learning:** In dashboards relying on frequent setInterval ticks (like 1s telemetry), executing twMerge/clsx inside the main render loop causes significant string parsing overhead, especially for static headers or classes that evaluate to the same string 99% of the time.
 **Action:** Extract static HTML blocks into `React.memo` components, and for dynamic classes whose conditions rarely toggle (e.g. `currentPower < 20`), use `useMemo(() => cn(...), [condition])` to cache the merged string instead of parsing it every tick.
+
+## 2026-06-27 - [Structural Sharing in High-Frequency React Setters]
+**Learning:** When dealing with high-frequency `setInterval` React state updates (e.g. mapping over arrays every 1s), even if mapped item values don't logically change, mapping always produces a new array reference. This breaks `React.memo()` on downstream components because the structural reference is new every tick.
+**Action:** Implemented a `hasChanges` flag inside the setter function to track if any item was actually modified during the map operation. If no modifications occur, return the original `prevArray` reference instead of the newly mapped array. This preserves structural sharing and allows downstream memoized list items to correctly bail out of re-rendering.
