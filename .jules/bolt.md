@@ -35,3 +35,7 @@
 ## 2024-05-18 - [Avoid twMerge string parsing on interval-tick re-renders]
 **Learning:** In dashboards relying on frequent setInterval ticks (like 1s telemetry), executing twMerge/clsx inside the main render loop causes significant string parsing overhead, especially for static headers or classes that evaluate to the same string 99% of the time.
 **Action:** Extract static HTML blocks into `React.memo` components, and for dynamic classes whose conditions rarely toggle (e.g. `currentPower < 20`), use `useMemo(() => cn(...), [condition])` to cache the merged string instead of parsing it every tick.
+
+## 2024-06-28 - React State Array Mapping Anti-Pattern
+**Learning:** When mapping over an array in state (e.g. `prevJobs.map(job => ...)`) within a high-frequency render loop (like a `1s` simulation tick), simply creating a new object reference for unmodified elements breaks `React.memo()` structural sharing on the child component, causing an `O(N)` rendering cost across unaffected elements.
+**Action:** Use a mutable tracker variable within the state updater callback to determine if *any* properties of an array's objects have actually changed, and if not, return the previous state array reference `prevArray` to allow downstream React diffing to completely bypass the array and its members.
