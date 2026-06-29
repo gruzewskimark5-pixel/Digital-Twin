@@ -35,3 +35,7 @@
 ## 2024-05-18 - [Avoid twMerge string parsing on interval-tick re-renders]
 **Learning:** In dashboards relying on frequent setInterval ticks (like 1s telemetry), executing twMerge/clsx inside the main render loop causes significant string parsing overhead, especially for static headers or classes that evaluate to the same string 99% of the time.
 **Action:** Extract static HTML blocks into `React.memo` components, and for dynamic classes whose conditions rarely toggle (e.g. `currentPower < 20`), use `useMemo(() => cn(...), [condition])` to cache the merged string instead of parsing it every tick.
+
+## 2024-06-29 - Prevent Re-renders by Checking State Mutations in Intervals
+**Learning:** In a fast `setInterval` loop (like the 1-second telemetry tick), mapping over a state array and unconditionally returning a new object for each item (`return { ...item, ...updates }`) or a new array reference causes React to trigger re-renders even if the data itself hasn't materially changed. This breaks structural sharing and `React.memo`, leading to garbage collection churn and unnecessary DOM evaluations.
+**Action:** Always use a `hasChanges` flag inside the state updater function. Check if the computed properties are actually different from the previous item (`newVal !== oldVal`). If there are no changes across the entire array, return the exact `prev` reference to preserve structural sharing and skip React's reconciliation process for that array.
