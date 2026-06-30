@@ -313,32 +313,46 @@ export default function App() {
       setTelemetryLog(prev => [logMsg, ...prev].slice(0, 8));
 
       // Process Jobs
-      setJobs(prevJobs => prevJobs.map(job => {
-        if (job.status === 'COMPLETED' || job.status === 'FAILED') return job;
-        
-        let newProgress = job.progress;
-        let newStatus = job.status;
-        let newNode = job.node;
+      // ⚡ Bolt Optimization: Use a hasChanges flag to return the previous array reference if no elements were modified.
+      // This preserves structural sharing and prevents unnecessary re-renders of downstream components.
+      setJobs(prevJobs => {
+        let hasChanges = false;
+        const newJobs = prevJobs.map(job => {
+          if (job.status === 'COMPLETED' || job.status === 'FAILED') return job;
 
-        if (job.status === 'QUEUED') {
-          if (Math.random() > 0.7) {
-            newStatus = 'RUNNING';
-            newNode = MOCK_NODES[Math.floor(Math.random() * MOCK_NODES.length)];
-          }
-        } else if (job.status === 'RUNNING' || job.status === 'CHECKPOINTED') {
-          newProgress += Math.random() * 4;
-          if (newProgress >= 100) {
-            newProgress = 100;
-            newStatus = 'COMPLETED';
-          } else if (newProgress > 0 && Math.floor(newProgress) % 30 < 4 && job.status === 'RUNNING') {
-            newStatus = 'CHECKPOINTED';
-          } else if (job.status === 'CHECKPOINTED' && Math.random() > 0.4) {
-            newStatus = 'RUNNING';
-          }
-        }
+          let newProgress = job.progress;
+          let newStatus = job.status;
+          let newNode = job.node;
+          let jobChanged = false;
 
-        return { ...job, progress: newProgress, status: newStatus, node: newNode };
-      }));
+          if (job.status === 'QUEUED') {
+            if (Math.random() > 0.7) {
+              newStatus = 'RUNNING';
+              newNode = MOCK_NODES[Math.floor(Math.random() * MOCK_NODES.length)];
+              jobChanged = true;
+            }
+          } else if (job.status === 'RUNNING' || job.status === 'CHECKPOINTED') {
+            newProgress += Math.random() * 4;
+            jobChanged = true;
+            if (newProgress >= 100) {
+              newProgress = 100;
+              newStatus = 'COMPLETED';
+            } else if (newProgress > 0 && Math.floor(newProgress) % 30 < 4 && job.status === 'RUNNING') {
+              newStatus = 'CHECKPOINTED';
+            } else if (job.status === 'CHECKPOINTED' && Math.random() > 0.4) {
+              newStatus = 'RUNNING';
+            }
+          }
+
+          if (jobChanged) {
+            hasChanges = true;
+            return { ...job, progress: newProgress, status: newStatus, node: newNode };
+          }
+          return job;
+        });
+
+        return hasChanges ? newJobs : prevJobs;
+      });
     };
   }, [activeNode, isEclipse, powerData, thermalData]);
 
