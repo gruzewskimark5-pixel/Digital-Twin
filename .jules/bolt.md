@@ -35,3 +35,7 @@
 ## 2024-05-18 - [Avoid twMerge string parsing on interval-tick re-renders]
 **Learning:** In dashboards relying on frequent setInterval ticks (like 1s telemetry), executing twMerge/clsx inside the main render loop causes significant string parsing overhead, especially for static headers or classes that evaluate to the same string 99% of the time.
 **Action:** Extract static HTML blocks into `React.memo` components, and for dynamic classes whose conditions rarely toggle (e.g. `currentPower < 20`), use `useMemo(() => cn(...), [condition])` to cache the merged string instead of parsing it every tick.
+
+## 2026-07-01 - [O(1) Dictionary Lookup for Tab Titles]
+**Learning:** Replaced a large 24-layer ternary chain (`activeTab === 'X' ? ... : activeTab === 'Y' ? ...`) used for rendering tab titles with an O(1) object lookup dictionary in `App.tsx`. Deeply nested ternaries cause excessive evaluation time during rendering ticks. Since the interval ticks every second, reducing computation time in components that are re-evaluated frequently ensures smoother UI updates without causing unnecessary work for the JS engine.
+**Action:** When mapping predefined keys to static string values, especially inside frequently re-evaluated or memoized components, always use a dictionary/object lookup instead of large `switch` or `ternary` statements to maintain O(1) performance.

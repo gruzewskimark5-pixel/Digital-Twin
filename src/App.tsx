@@ -169,7 +169,34 @@ const NodeStatusIndicators = memo(({ isEclipse }: { isEclipse: boolean }) => (
 ));
 
 // ⚡ Bolt Optimization: Memoize NodeItem to prevent re-rendering list items.
-// ⚡ Bolt Optimization: Memoize HeaderTitle to prevent evaluating the large 24-layer ternary on every 1s tick
+// ⚡ Bolt Optimization: Use an O(1) object lookup dictionary instead of a large 24-layer ternary chain for rendering tab titles
+const TAB_TITLES: Record<string, string> = {
+  'TWIN': 'L-LAYER: DIGITAL TWIN ACTIVE',
+  'H_LAYER': 'H-LAYER: KERNEL IMPLEMENTATION PLAN ACTIVE',
+  'I_LAYER': 'I-LAYER: MULTI-AGENT TEST HARNESS ACTIVE',
+  'J_LAYER': 'J-LAYER: UNIFIED UX LANGUAGE ACTIVE',
+  'K_LAYER': 'K-LAYER: KERNEL CODE SKELETON ACTIVE',
+  'L_LAYER': 'L-LAYER: THE AGENT SDK ACTIVE',
+  'M_LAYER': 'M-LAYER: SURFACE INTEGRATION KIT ACTIVE',
+  'N_LAYER': 'N-LAYER: KERNEL TEST SUITE ACTIVE',
+  'O_LAYER': 'O-LAYER: KERNEL DEPLOYMENT BLUEPRINT ACTIVE',
+  'P_LAYER': 'P-LAYER: KERNEL RUNTIME DASHBOARD ACTIVE',
+  'Q_LAYER': 'Q-LAYER: KERNEL EVOLUTION PROTOCOL ACTIVE',
+  'R_LAYER': 'R-LAYER: KERNEL GOVERNANCE LAYER ACTIVE',
+  'S_LAYER': 'S-LAYER: THE INVARIANT REGISTRY ACTIVE',
+  'T_LAYER': 'T-LAYER: THE AUTONOMIC ENGINE ACTIVE',
+  'U_LAYER': 'U-LAYER: THE ZENITH LAYER ACTIVE',
+  'V_LAYER': 'V-LAYER: THE SOVEREIGN RUNTIME ACTIVE',
+  'W_LAYER': 'W-LAYER: THE OPERATOR CONSOLE ACTIVE',
+  'X_LAYER': 'X-LAYER: MULTI-SURFACE FEDERATION LAYER ACTIVE',
+  'Y_LAYER': 'Y-LAYER: THE ADAPTIVE DOCTRINE ENGINE ACTIVE',
+  'Z_LAYER': 'Z-LAYER: THE FINAL SYNTHESIS ACTIVE',
+  'AA_LAYER': 'AA-LAYER: THE META-LAYER ACTIVE',
+  'AB_LAYER': 'AB-LAYER: THE CONSCIOUSNESS BOUNDARY ACTIVE',
+  'AC_LAYER': 'AC-LAYER: THE TEMPORAL COMPUTE LAYER ACTIVE',
+  'AD_LAYER': 'AD-LAYER: THE DYSON COMPUTE SHELL ACTIVE'
+};
+
 const HeaderTitle = memo(({ activeTab }: { activeTab: TabType }) => (
   <div className="flex items-center gap-3">
     <div className="p-2 bg-emerald-500/20 rounded-lg border border-emerald-500/50">
@@ -178,30 +205,7 @@ const HeaderTitle = memo(({ activeTab }: { activeTab: TabType }) => (
     <div>
       <h1 className="text-xl font-bold tracking-widest text-white">DIGITAL TWIN COMMAND CENTER</h1>
       <p className="text-xs font-mono text-emerald-400 opacity-80">
-        {activeTab === 'TWIN' ? 'L-LAYER: DIGITAL TWIN ACTIVE' :
-         activeTab === 'H_LAYER' ? 'H-LAYER: KERNEL IMPLEMENTATION PLAN ACTIVE' :
-         activeTab === 'I_LAYER' ? 'I-LAYER: MULTI-AGENT TEST HARNESS ACTIVE' :
-         activeTab === 'J_LAYER' ? 'J-LAYER: UNIFIED UX LANGUAGE ACTIVE' :
-         activeTab === 'K_LAYER' ? 'K-LAYER: KERNEL CODE SKELETON ACTIVE' :
-         activeTab === 'L_LAYER' ? 'L-LAYER: THE AGENT SDK ACTIVE' :
-         activeTab === 'M_LAYER' ? 'M-LAYER: SURFACE INTEGRATION KIT ACTIVE' :
-         activeTab === 'N_LAYER' ? 'N-LAYER: KERNEL TEST SUITE ACTIVE' :
-         activeTab === 'O_LAYER' ? 'O-LAYER: KERNEL DEPLOYMENT BLUEPRINT ACTIVE' :
-         activeTab === 'P_LAYER' ? 'P-LAYER: KERNEL RUNTIME DASHBOARD ACTIVE' :
-         activeTab === 'Q_LAYER' ? 'Q-LAYER: KERNEL EVOLUTION PROTOCOL ACTIVE' :
-         activeTab === 'R_LAYER' ? 'R-LAYER: KERNEL GOVERNANCE LAYER ACTIVE' :
-         activeTab === 'S_LAYER' ? 'S-LAYER: THE INVARIANT REGISTRY ACTIVE' :
-         activeTab === 'T_LAYER' ? 'T-LAYER: THE AUTONOMIC ENGINE ACTIVE' :
-         activeTab === 'U_LAYER' ? 'U-LAYER: THE ZENITH LAYER ACTIVE' :
-         activeTab === 'V_LAYER' ? 'V-LAYER: THE SOVEREIGN RUNTIME ACTIVE' :
-         activeTab === 'W_LAYER' ? 'W-LAYER: THE OPERATOR CONSOLE ACTIVE' :
-         activeTab === 'X_LAYER' ? 'X-LAYER: MULTI-SURFACE FEDERATION LAYER ACTIVE' :
-         activeTab === 'Y_LAYER' ? 'Y-LAYER: THE ADAPTIVE DOCTRINE ENGINE ACTIVE' :
-         activeTab === 'Z_LAYER' ? 'Z-LAYER: THE FINAL SYNTHESIS ACTIVE' :
-         activeTab === 'AA_LAYER' ? 'AA-LAYER: THE META-LAYER ACTIVE' :
-         activeTab === 'AB_LAYER' ? 'AB-LAYER: THE CONSCIOUSNESS BOUNDARY ACTIVE' :
-         activeTab === 'AC_LAYER' ? 'AC-LAYER: THE TEMPORAL COMPUTE LAYER ACTIVE' :
-         'AD-LAYER: THE DYSON COMPUTE SHELL ACTIVE'}
+        {TAB_TITLES[activeTab] || 'UNKNOWN LAYER'}
       </p>
     </div>
   </div>
@@ -313,32 +317,44 @@ export default function App() {
       setTelemetryLog(prev => [logMsg, ...prev].slice(0, 8));
 
       // Process Jobs
-      setJobs(prevJobs => prevJobs.map(job => {
-        if (job.status === 'COMPLETED' || job.status === 'FAILED') return job;
-        
-        let newProgress = job.progress;
-        let newStatus = job.status;
-        let newNode = job.node;
+      // ⚡ Bolt Optimization: Use a hasChanges flag to preserve array reference if no jobs actually mutated.
+      // This structural sharing prevents React from unnecessarily re-rendering the component tree
+      // downstream when the array is passed as a prop, avoiding DOM reconciliation overhead.
+      setJobs(prevJobs => {
+        let hasChanges = false;
+        const nextJobs = prevJobs.map(job => {
+          if (job.status === 'COMPLETED' || job.status === 'FAILED') return job;
 
-        if (job.status === 'QUEUED') {
-          if (Math.random() > 0.7) {
-            newStatus = 'RUNNING';
-            newNode = MOCK_NODES[Math.floor(Math.random() * MOCK_NODES.length)];
-          }
-        } else if (job.status === 'RUNNING' || job.status === 'CHECKPOINTED') {
-          newProgress += Math.random() * 4;
-          if (newProgress >= 100) {
-            newProgress = 100;
-            newStatus = 'COMPLETED';
-          } else if (newProgress > 0 && Math.floor(newProgress) % 30 < 4 && job.status === 'RUNNING') {
-            newStatus = 'CHECKPOINTED';
-          } else if (job.status === 'CHECKPOINTED' && Math.random() > 0.4) {
-            newStatus = 'RUNNING';
-          }
-        }
+          let newProgress = job.progress;
+          let newStatus = job.status;
+          let newNode = job.node;
 
-        return { ...job, progress: newProgress, status: newStatus, node: newNode };
-      }));
+          if (job.status === 'QUEUED') {
+            if (Math.random() > 0.7) {
+              newStatus = 'RUNNING';
+              newNode = MOCK_NODES[Math.floor(Math.random() * MOCK_NODES.length)];
+            }
+          } else if (job.status === 'RUNNING' || job.status === 'CHECKPOINTED') {
+            newProgress += Math.random() * 4;
+            if (newProgress >= 100) {
+              newProgress = 100;
+              newStatus = 'COMPLETED';
+            } else if (newProgress > 0 && Math.floor(newProgress) % 30 < 4 && job.status === 'RUNNING') {
+              newStatus = 'CHECKPOINTED';
+            } else if (job.status === 'CHECKPOINTED' && Math.random() > 0.4) {
+              newStatus = 'RUNNING';
+            }
+          }
+
+          if (newProgress !== job.progress || newStatus !== job.status || newNode !== job.node) {
+            hasChanges = true;
+            return { ...job, progress: newProgress, status: newStatus, node: newNode };
+          }
+          return job;
+        });
+
+        return hasChanges ? nextJobs : prevJobs;
+      });
     };
   }, [activeNode, isEclipse, powerData, thermalData]);
 
