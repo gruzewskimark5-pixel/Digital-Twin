@@ -35,3 +35,11 @@
 ## 2024-05-18 - [Avoid twMerge string parsing on interval-tick re-renders]
 **Learning:** In dashboards relying on frequent setInterval ticks (like 1s telemetry), executing twMerge/clsx inside the main render loop causes significant string parsing overhead, especially for static headers or classes that evaluate to the same string 99% of the time.
 **Action:** Extract static HTML blocks into `React.memo` components, and for dynamic classes whose conditions rarely toggle (e.g. `currentPower < 20`), use `useMemo(() => cn(...), [condition])` to cache the merged string instead of parsing it every tick.
+
+## 2024-07-03 - [Refactored O(N) deeply nested ternary evaluation overhead]
+**Learning:** React memoization does not automatically prevent expensive evaluations inside the component body, particularly massive ternary trees during interval ticks (like the 24-layer condition block inside `HeaderTitle` or the lazy router loop inside `App`). While `twMerge` overhead was previously fixed via memoized dynamic strings, direct structural memoization inside interval-heavy functional components necessitates extracting O(N) branching logic into O(1) object dictionaries.
+**Action:** Extract large branching statements (e.g. mapping `activeTab` to React component or string title) into constant dictionaries (`TAB_TITLES`, `LAYER_COMPONENTS`) defined outside of component bodies or behind a structural `useMemo`/IIFE where interval updates frequently tick top-level states to ensure O(1) execution scale.
+
+## 2024-07-03 - [Structural Array Sharing vs Expensive React Reconciliation]
+**Learning:** Even if children items are memoized (`JobItem = memo()`), passing a mapped, mutated array reference (e.g., `prevJobs.map()`) every interval tick forces React to re-evaluate equality checks and reconcile the entire list. In applications simulating real-time queues where items periodically _don't_ change, allocating a new array reference causes unnecessary reconciler load.
+**Action:** Use a local `hasChanges` flag inside list update reducers/setters. Mutate a new structural copy only if deeply nested item states change, otherwise return `prevJobs` intact to signal to React that the prop reference has not changed and DOM reconciliation can be entirely bypassed.
