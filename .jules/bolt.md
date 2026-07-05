@@ -35,3 +35,6 @@
 ## 2024-05-18 - [Avoid twMerge string parsing on interval-tick re-renders]
 **Learning:** In dashboards relying on frequent setInterval ticks (like 1s telemetry), executing twMerge/clsx inside the main render loop causes significant string parsing overhead, especially for static headers or classes that evaluate to the same string 99% of the time.
 **Action:** Extract static HTML blocks into `React.memo` components, and for dynamic classes whose conditions rarely toggle (e.g. `currentPower < 20`), use `useMemo(() => cn(...), [condition])` to cache the merged string instead of parsing it every tick.
+## 2026-07-05 - Avoid deeply nested ternary chains for string lookups
+**Learning:** In a fast-ticking React application, massive (e.g. 24-layer) deeply nested ternary chains are not only hard to read but evaluate slowly on every render tick compared to O(1) dictionary lookups.
+**Action:** Replace deeply nested ternary chains that map discrete strings to specific outputs with a standard dictionary `Record<string, string>`.
