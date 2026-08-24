@@ -35,3 +35,12 @@
 ## 2024-05-18 - [Avoid twMerge string parsing on interval-tick re-renders]
 **Learning:** In dashboards relying on frequent setInterval ticks (like 1s telemetry), executing twMerge/clsx inside the main render loop causes significant string parsing overhead, especially for static headers or classes that evaluate to the same string 99% of the time.
 **Action:** Extract static HTML blocks into `React.memo` components, and for dynamic classes whose conditions rarely toggle (e.g. `currentPower < 20`), use `useMemo(() => cn(...), [condition])` to cache the merged string instead of parsing it every tick.
+
+## 2024-06-11 - Array Update Reference Preservation
+**Learning:** In heavily ticking React applications (like 1s telemetry loops), array state updaters (e.g. `setJobs(prev => prev.map(...))`) natively generate a completely new array reference in memory every interval, even if zero elements actually change state. This breaks down-stream structural sharing and forces deep re-renders across all child components subscribed to that array.
+**Action:** Use a `hasChanges` flag within map loops during frequent intervals to conditionally return the original `prev` array reference if no elements were modified, drastically cutting down React reconciliation effort.
+
+
+## 2024-06-11 - Replace Deep Ternary Chains with Object Lookup
+**Learning:** Large nested ternary chains (like the 24-layer tab title mapping) executed during frequent `setInterval` component renders generate significantly more operations per tick than static mappings, degrading CPU usage as branches are checked sequentially.
+**Action:** Replace deep ternary trees inside render loops with O(1) dictionary objects (`Record<string, string>`) instantiated outside the component function scope, which is far more CPU-friendly for components operating on 1-second ticks.
