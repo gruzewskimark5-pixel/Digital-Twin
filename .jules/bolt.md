@@ -35,3 +35,10 @@
 ## 2024-05-18 - [Avoid twMerge string parsing on interval-tick re-renders]
 **Learning:** In dashboards relying on frequent setInterval ticks (like 1s telemetry), executing twMerge/clsx inside the main render loop causes significant string parsing overhead, especially for static headers or classes that evaluate to the same string 99% of the time.
 **Action:** Extract static HTML blocks into `React.memo` components, and for dynamic classes whose conditions rarely toggle (e.g. `currentPower < 20`), use `useMemo(() => cn(...), [condition])` to cache the merged string instead of parsing it every tick.
+## 2024-08-26 - O(1) Dictionary Lookups vs Large Ternary Chains
+**Learning:** Deeply nested (e.g., 24-layer) ternary chains in frequently re-rendered React components cause unnecessary evaluation overhead and are hard to maintain.
+**Action:** Extract massive conditional mappings into static O(1) dictionary objects (Record<string, string>) outside the component. Use fallback values (e.g., `DICT[key] || 'Default'`) to handle undefined cases efficiently.
+
+## 2024-08-26 - Structural Sharing in Tick-Based Arrays
+**Learning:** In applications with fast tick rates, blindly returning a mapped array in state updaters destroys object references, forcing all child components to re-render even if data didn't change.
+**Action:** Introduce a `hasChanges` flag in array mapping state updaters. Only create new object references for elements that actually mutated. If no elements mutated, return the exact previous array reference to preserve structural sharing and bypass downstream re-renders.
