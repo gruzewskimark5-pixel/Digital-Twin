@@ -6,7 +6,7 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export type TabType = 'TWIN' | 'H_LAYER' | 'I_LAYER' | 'J_LAYER' | 'K_LAYER' | 'L_LAYER' | 'M_LAYER' | 'N_LAYER' | 'O_LAYER' | 'P_LAYER' | 'Q_LAYER' | 'R_LAYER' | 'S_LAYER' | 'T_LAYER' | 'U_LAYER' | 'V_LAYER' | 'W_LAYER' | 'X_LAYER' | 'Y_LAYER' | 'Z_LAYER';
+export type TabType = 'TWIN' | 'H_LAYER' | 'I_LAYER' | 'J_LAYER' | 'K_LAYER' | 'L_LAYER' | 'M_LAYER' | 'N_LAYER' | 'O_LAYER' | 'P_LAYER' | 'Q_LAYER' | 'R_LAYER' | 'S_LAYER' | 'T_LAYER' | 'U_LAYER' | 'V_LAYER' | 'W_LAYER' | 'X_LAYER' | 'Y_LAYER' | 'Z_LAYER' | 'AA_LAYER' | 'AB_LAYER' | 'AC_LAYER' | 'AD_LAYER';
 
 const TABS: { id: TabType; label: string }[] = [
   { id: 'TWIN', label: 'TWIN' },
