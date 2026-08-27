@@ -35,3 +35,11 @@
 ## 2024-05-18 - [Avoid twMerge string parsing on interval-tick re-renders]
 **Learning:** In dashboards relying on frequent setInterval ticks (like 1s telemetry), executing twMerge/clsx inside the main render loop causes significant string parsing overhead, especially for static headers or classes that evaluate to the same string 99% of the time.
 **Action:** Extract static HTML blocks into `React.memo` components, and for dynamic classes whose conditions rarely toggle (e.g. `currentPower < 20`), use `useMemo(() => cn(...), [condition])` to cache the merged string instead of parsing it every tick.
+
+## 2024-05-25 - React Interval Array Map Optimization
+**Learning:** In a heavily-ticking React application (like a 1s tick simulation), mapping over an array in a `setState` inside an interval (e.g., `setJobs(prev => prev.map(...))`) will *always* return a new array reference, even if no items actually changed their properties. This destroys structural sharing and forces React to re-render or at least reconcile all child components that depend on that array every single tick.
+**Action:** When updating arrays on a fast interval, introduce a `hasChanges` boolean flag during the mapping process. If no items are modified, explicitly return the `prev` array reference (`return hasChanges ? newArray : prev;`) to preserve structural sharing and avoid unnecessary downstream re-renders.
+
+## 2024-05-25 - O(1) Dictionary Lookup over Massive Ternary Chains
+**Learning:** While replacing simple conditionals with O(1) object lookups is often considered an unmeasurable micro-optimization, replacing massive (e.g., 24-layer) deeply nested ternary chains inside a render loop with O(1) dictionary lookups is highly recommended for maintainability and evaluation speed during frequent interval ticks.
+**Action:** Extract large conditional chains mapping keys to values into static `Record<string, string>` dictionaries outside the component body.
