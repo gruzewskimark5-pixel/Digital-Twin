@@ -35,3 +35,11 @@
 ## 2024-05-18 - [Avoid twMerge string parsing on interval-tick re-renders]
 **Learning:** In dashboards relying on frequent setInterval ticks (like 1s telemetry), executing twMerge/clsx inside the main render loop causes significant string parsing overhead, especially for static headers or classes that evaluate to the same string 99% of the time.
 **Action:** Extract static HTML blocks into `React.memo` components, and for dynamic classes whose conditions rarely toggle (e.g. `currentPower < 20`), use `useMemo(() => cn(...), [condition])` to cache the merged string instead of parsing it every tick.
+
+## 2025-02-28 - Refactoring massive React render conditionals to O(1) maps
+**Learning:** Massive (e.g. 24-layer) ternary conditionals used inline for React rendering decisions are re-evaluated constantly, especially inside an interval tick that updates state frequently. While typical logic micro-optimizations might not be measurable, large rendering chain conditionals in an interval loop introduce noticeable overhead.
+**Action:** Replace huge inline conditional trees for rendering or static string lookups with O(1) dictionary Maps (`Record<string, ComponentType>`) defined outside the component. This drastically reduces the overhead during render cycles.
+
+## 2025-02-28 - Optimizing React Array State updates with Structural Sharing
+**Learning:** In state updates mapped over on an interval tick (e.g., jobs progress), returning a completely new array reference when elements inside haven't actually changed causes downstream props to fail referential equality checks, resulting in unneeded re-renders.
+**Action:** Use a `hasChanges` flag when `.map`ping over state array elements in a tick loop. If none of the inner properties actually mutated, return the previous state array reference (`prevJobs`) directly to preserve structural sharing and downstream equality.
