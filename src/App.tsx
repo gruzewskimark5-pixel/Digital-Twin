@@ -170,6 +170,33 @@ const NodeStatusIndicators = memo(({ isEclipse }: { isEclipse: boolean }) => (
 
 // ⚡ Bolt Optimization: Memoize NodeItem to prevent re-rendering list items.
 // ⚡ Bolt Optimization: Memoize HeaderTitle to prevent evaluating the large 24-layer ternary on every 1s tick
+const LAYER_TITLES: Record<string, string> = {
+  'TWIN': 'L-LAYER: DIGITAL TWIN ACTIVE',
+  'H_LAYER': 'H-LAYER: KERNEL IMPLEMENTATION PLAN ACTIVE',
+  'I_LAYER': 'I-LAYER: MULTI-AGENT TEST HARNESS ACTIVE',
+  'J_LAYER': 'J-LAYER: UNIFIED UX LANGUAGE ACTIVE',
+  'K_LAYER': 'K-LAYER: KERNEL CODE SKELETON ACTIVE',
+  'L_LAYER': 'L-LAYER: THE AGENT SDK ACTIVE',
+  'M_LAYER': 'M-LAYER: SURFACE INTEGRATION KIT ACTIVE',
+  'N_LAYER': 'N-LAYER: KERNEL TEST SUITE ACTIVE',
+  'O_LAYER': 'O-LAYER: KERNEL DEPLOYMENT BLUEPRINT ACTIVE',
+  'P_LAYER': 'P-LAYER: KERNEL RUNTIME DASHBOARD ACTIVE',
+  'Q_LAYER': 'Q-LAYER: KERNEL EVOLUTION PROTOCOL ACTIVE',
+  'R_LAYER': 'R-LAYER: KERNEL GOVERNANCE LAYER ACTIVE',
+  'S_LAYER': 'S-LAYER: THE INVARIANT REGISTRY ACTIVE',
+  'T_LAYER': 'T-LAYER: THE AUTONOMIC ENGINE ACTIVE',
+  'U_LAYER': 'U-LAYER: THE ZENITH LAYER ACTIVE',
+  'V_LAYER': 'V-LAYER: THE SOVEREIGN RUNTIME ACTIVE',
+  'W_LAYER': 'W-LAYER: THE OPERATOR CONSOLE ACTIVE',
+  'X_LAYER': 'X-LAYER: MULTI-SURFACE FEDERATION LAYER ACTIVE',
+  'Y_LAYER': 'Y-LAYER: THE ADAPTIVE DOCTRINE ENGINE ACTIVE',
+  'Z_LAYER': 'Z-LAYER: THE FINAL SYNTHESIS ACTIVE',
+  'AA_LAYER': 'AA-LAYER: THE META-LAYER ACTIVE',
+  'AB_LAYER': 'AB-LAYER: THE CONSCIOUSNESS BOUNDARY ACTIVE',
+  'AC_LAYER': 'AC-LAYER: THE TEMPORAL COMPUTE LAYER ACTIVE',
+  'AD_LAYER': 'AD-LAYER: THE DYSON COMPUTE SHELL ACTIVE',
+};
+
 const HeaderTitle = memo(({ activeTab }: { activeTab: TabType }) => (
   <div className="flex items-center gap-3">
     <div className="p-2 bg-emerald-500/20 rounded-lg border border-emerald-500/50">
@@ -178,30 +205,7 @@ const HeaderTitle = memo(({ activeTab }: { activeTab: TabType }) => (
     <div>
       <h1 className="text-xl font-bold tracking-widest text-white">DIGITAL TWIN COMMAND CENTER</h1>
       <p className="text-xs font-mono text-emerald-400 opacity-80">
-        {activeTab === 'TWIN' ? 'L-LAYER: DIGITAL TWIN ACTIVE' :
-         activeTab === 'H_LAYER' ? 'H-LAYER: KERNEL IMPLEMENTATION PLAN ACTIVE' :
-         activeTab === 'I_LAYER' ? 'I-LAYER: MULTI-AGENT TEST HARNESS ACTIVE' :
-         activeTab === 'J_LAYER' ? 'J-LAYER: UNIFIED UX LANGUAGE ACTIVE' :
-         activeTab === 'K_LAYER' ? 'K-LAYER: KERNEL CODE SKELETON ACTIVE' :
-         activeTab === 'L_LAYER' ? 'L-LAYER: THE AGENT SDK ACTIVE' :
-         activeTab === 'M_LAYER' ? 'M-LAYER: SURFACE INTEGRATION KIT ACTIVE' :
-         activeTab === 'N_LAYER' ? 'N-LAYER: KERNEL TEST SUITE ACTIVE' :
-         activeTab === 'O_LAYER' ? 'O-LAYER: KERNEL DEPLOYMENT BLUEPRINT ACTIVE' :
-         activeTab === 'P_LAYER' ? 'P-LAYER: KERNEL RUNTIME DASHBOARD ACTIVE' :
-         activeTab === 'Q_LAYER' ? 'Q-LAYER: KERNEL EVOLUTION PROTOCOL ACTIVE' :
-         activeTab === 'R_LAYER' ? 'R-LAYER: KERNEL GOVERNANCE LAYER ACTIVE' :
-         activeTab === 'S_LAYER' ? 'S-LAYER: THE INVARIANT REGISTRY ACTIVE' :
-         activeTab === 'T_LAYER' ? 'T-LAYER: THE AUTONOMIC ENGINE ACTIVE' :
-         activeTab === 'U_LAYER' ? 'U-LAYER: THE ZENITH LAYER ACTIVE' :
-         activeTab === 'V_LAYER' ? 'V-LAYER: THE SOVEREIGN RUNTIME ACTIVE' :
-         activeTab === 'W_LAYER' ? 'W-LAYER: THE OPERATOR CONSOLE ACTIVE' :
-         activeTab === 'X_LAYER' ? 'X-LAYER: MULTI-SURFACE FEDERATION LAYER ACTIVE' :
-         activeTab === 'Y_LAYER' ? 'Y-LAYER: THE ADAPTIVE DOCTRINE ENGINE ACTIVE' :
-         activeTab === 'Z_LAYER' ? 'Z-LAYER: THE FINAL SYNTHESIS ACTIVE' :
-         activeTab === 'AA_LAYER' ? 'AA-LAYER: THE META-LAYER ACTIVE' :
-         activeTab === 'AB_LAYER' ? 'AB-LAYER: THE CONSCIOUSNESS BOUNDARY ACTIVE' :
-         activeTab === 'AC_LAYER' ? 'AC-LAYER: THE TEMPORAL COMPUTE LAYER ACTIVE' :
-         'AD-LAYER: THE DYSON COMPUTE SHELL ACTIVE'}
+        {LAYER_TITLES[activeTab] || LAYER_TITLES['AD_LAYER']}
       </p>
     </div>
   </div>
@@ -233,6 +237,32 @@ const LAYER_TABS = [
 ] as const;
 
 type LayerTab = typeof LAYER_TABS[number];
+
+const LAYER_COMPONENTS: Record<string, React.ElementType> = {
+  'H_LAYER': HLayerDashboard,
+  'I_LAYER': ILayerDashboard,
+  'J_LAYER': JLayerDashboard,
+  'K_LAYER': KLayerDashboard,
+  'L_LAYER': LLayerDashboard,
+  'M_LAYER': MLayerDashboard,
+  'N_LAYER': NLayerDashboard,
+  'O_LAYER': OLayerDashboard,
+  'P_LAYER': PLayerDashboard,
+  'Q_LAYER': QLayerDashboard,
+  'R_LAYER': RLayerDashboard,
+  'S_LAYER': SLayerDashboard,
+  'T_LAYER': TLayerDashboard,
+  'U_LAYER': ULayerDashboard,
+  'V_LAYER': VLayerDashboard,
+  'W_LAYER': WLayerDashboard,
+  'X_LAYER': XLayerDashboard,
+  'Y_LAYER': YLayerDashboard,
+  'Z_LAYER': ZLayerDashboard,
+  'AA_LAYER': AALayerDashboard,
+  'AB_LAYER': ABLayerDashboard,
+  'AC_LAYER': ACLayerDashboard,
+  'AD_LAYER': ADLayerDashboard,
+};
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('Z_LAYER');
@@ -313,32 +343,41 @@ export default function App() {
       setTelemetryLog(prev => [logMsg, ...prev].slice(0, 8));
 
       // Process Jobs
-      setJobs(prevJobs => prevJobs.map(job => {
-        if (job.status === 'COMPLETED' || job.status === 'FAILED') return job;
-        
-        let newProgress = job.progress;
-        let newStatus = job.status;
-        let newNode = job.node;
+      setJobs(prevJobs => {
+        let hasChanges = false;
+        const nextJobs = prevJobs.map(job => {
+          if (job.status === 'COMPLETED' || job.status === 'FAILED') return job;
 
-        if (job.status === 'QUEUED') {
-          if (Math.random() > 0.7) {
-            newStatus = 'RUNNING';
-            newNode = MOCK_NODES[Math.floor(Math.random() * MOCK_NODES.length)];
-          }
-        } else if (job.status === 'RUNNING' || job.status === 'CHECKPOINTED') {
-          newProgress += Math.random() * 4;
-          if (newProgress >= 100) {
-            newProgress = 100;
-            newStatus = 'COMPLETED';
-          } else if (newProgress > 0 && Math.floor(newProgress) % 30 < 4 && job.status === 'RUNNING') {
-            newStatus = 'CHECKPOINTED';
-          } else if (job.status === 'CHECKPOINTED' && Math.random() > 0.4) {
-            newStatus = 'RUNNING';
-          }
-        }
+          let newProgress = job.progress;
+          let newStatus = job.status;
+          let newNode = job.node;
 
-        return { ...job, progress: newProgress, status: newStatus, node: newNode };
-      }));
+          if (job.status === 'QUEUED') {
+            if (Math.random() > 0.7) {
+              newStatus = 'RUNNING';
+              newNode = MOCK_NODES[Math.floor(Math.random() * MOCK_NODES.length)];
+            }
+          } else if (job.status === 'RUNNING' || job.status === 'CHECKPOINTED') {
+            newProgress += Math.random() * 4;
+            if (newProgress >= 100) {
+              newProgress = 100;
+              newStatus = 'COMPLETED';
+            } else if (newProgress > 0 && Math.floor(newProgress) % 30 < 4 && job.status === 'RUNNING') {
+              newStatus = 'CHECKPOINTED';
+            } else if (job.status === 'CHECKPOINTED' && Math.random() > 0.4) {
+              newStatus = 'RUNNING';
+            }
+          }
+
+          if (newProgress !== job.progress || newStatus !== job.status || newNode !== job.node) {
+            hasChanges = true;
+            return { ...job, progress: newProgress, status: newStatus, node: newNode };
+          }
+          return job;
+        });
+
+        return hasChanges ? nextJobs : prevJobs;
+      });
     };
   }, [activeNode, isEclipse, powerData, thermalData]);
 
@@ -417,52 +456,8 @@ export default function App() {
       </header>
 
       <Suspense fallback={<div className="flex items-center justify-center p-8 text-emerald-400 font-mono text-sm animate-pulse">LOADING LAYER...</div>}>
-      {activeTab === 'H_LAYER' ? (
-        <HLayerDashboard />
-      ) : activeTab === 'I_LAYER' ? (
-        <ILayerDashboard />
-      ) : activeTab === 'J_LAYER' ? (
-        <JLayerDashboard />
-      ) : activeTab === 'K_LAYER' ? (
-        <KLayerDashboard />
-      ) : activeTab === 'L_LAYER' ? (
-        <LLayerDashboard />
-      ) : activeTab === 'M_LAYER' ? (
-        <MLayerDashboard />
-      ) : activeTab === 'N_LAYER' ? (
-        <NLayerDashboard />
-      ) : activeTab === 'O_LAYER' ? (
-        <OLayerDashboard />
-      ) : activeTab === 'P_LAYER' ? (
-        <PLayerDashboard />
-      ) : activeTab === 'Q_LAYER' ? (
-        <QLayerDashboard />
-      ) : activeTab === 'R_LAYER' ? (
-        <RLayerDashboard />
-      ) : activeTab === 'S_LAYER' ? (
-        <SLayerDashboard />
-      ) : activeTab === 'T_LAYER' ? (
-        <TLayerDashboard />
-      ) : activeTab === 'U_LAYER' ? (
-        <ULayerDashboard />
-      ) : activeTab === 'V_LAYER' ? (
-        <VLayerDashboard />
-      ) : activeTab === 'W_LAYER' ? (
-        <WLayerDashboard />
-      ) : activeTab === 'X_LAYER' ? (
-        <XLayerDashboard />
-      ) : activeTab === 'Y_LAYER' ? (
-        <YLayerDashboard />
-      ) : activeTab === 'Z_LAYER' ? (
-        <ZLayerDashboard />
-      ) : activeTab === 'AA_LAYER' ? (
-        <AALayerDashboard />
-      ) : activeTab === 'AB_LAYER' ? (
-        <ABLayerDashboard />
-      ) : activeTab === 'AC_LAYER' ? (
-        <ACLayerDashboard />
-      ) : activeTab === 'AD_LAYER' ? (
-        <ADLayerDashboard />
+      {activeTab !== 'TWIN' && LAYER_COMPONENTS[activeTab] ? (
+        React.createElement(LAYER_COMPONENTS[activeTab])
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1">
           {/* MAIN GRID */}
