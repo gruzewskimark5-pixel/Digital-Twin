@@ -229,6 +229,13 @@ const NodeItem = memo(({ node, activeNode, onSelect }: { node: string, activeNod
   </button>
 ));
 
+// ⚡ Bolt Optimization: Memoize TelemetryLogItem to prevent historical logs from re-rendering every 1s tick
+const TelemetryLogItem = memo(({ log, isLatest }: { log: string, isLatest: boolean }) => (
+  <div className={isLatest ? "text-emerald-400" : "text-gray-600"}>
+    {log}
+  </div>
+));
+
 const LAYER_TABS = [
   'TWIN', 'H_LAYER', 'I_LAYER', 'J_LAYER', 'K_LAYER', 'L_LAYER',
   'M_LAYER', 'N_LAYER', 'O_LAYER', 'P_LAYER', 'Q_LAYER', 'R_LAYER',
@@ -487,12 +494,7 @@ export default function App() {
               <p className="text-[10px] font-mono text-gray-500 mb-2">TELEMETRY INGESTION LOG</p>
               <div className="bg-black/60 rounded-lg p-3 border border-gray-800 h-48 overflow-hidden font-mono text-[10px] leading-relaxed flex flex-col gap-1">
                 {telemetryLog.map((log, i) => (
-                  // ⚡ Bolt Optimization: Use the unique log string as the key instead of the array index
-                  // Since items are prepended to this list every second, using index `i` forces React
-                  // to re-render every single DOM node in the list. Stable keys mean only 1 new node is inserted.
-                  <div key={log} className={i === 0 ? "text-emerald-400" : "text-gray-600"}>
-                    {log}
-                  </div>
+                  <TelemetryLogItem key={log} log={log} isLatest={i === 0} />
                 ))}
               </div>
             </div>
