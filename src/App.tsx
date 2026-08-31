@@ -145,6 +145,16 @@ const AnomalyItem = memo(({ anomaly, onExecute }: { anomaly: Anomaly, onExecute:
   </div>
 ));
 
+// ⚡ Bolt Optimization: Extract log item to a memoized component to avoid re-rendering
+// all historical logs on every 1s tick. By passing a primitive boolean `isLatest`
+// instead of relying on the loop index directly inside the component, React can skip
+// reconciliation for older log items that haven't changed.
+const TelemetryLogItem = memo(({ log, isLatest }: { log: string, isLatest: boolean }) => (
+  <div className={isLatest ? "text-emerald-400" : "text-gray-600"}>
+    {log}
+  </div>
+));
+
 // ⚡ Bolt Optimization: Memoize NodeStatusIndicators to prevent evaluating static DOM nodes and twMerge on every 1s tick
 const NodeStatusIndicators = memo(({ isEclipse }: { isEclipse: boolean }) => (
   <div className="grid grid-cols-2 gap-4">
@@ -490,9 +500,7 @@ export default function App() {
                   // ⚡ Bolt Optimization: Use the unique log string as the key instead of the array index
                   // Since items are prepended to this list every second, using index `i` forces React
                   // to re-render every single DOM node in the list. Stable keys mean only 1 new node is inserted.
-                  <div key={log} className={i === 0 ? "text-emerald-400" : "text-gray-600"}>
-                    {log}
-                  </div>
+                  <TelemetryLogItem key={log} log={log} isLatest={i === 0} />
                 ))}
               </div>
             </div>
