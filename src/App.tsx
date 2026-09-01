@@ -145,6 +145,13 @@ const AnomalyItem = memo(({ anomaly, onExecute }: { anomaly: Anomaly, onExecute:
   </div>
 ));
 
+// ⚡ Bolt Optimization: Memoize TelemetryLogItem to prevent re-rendering historical log items on every 1s tick
+const TelemetryLogItem = memo(({ log, isLatest }: { log: string, isLatest: boolean }) => (
+  <div className={isLatest ? "text-emerald-400" : "text-gray-600"}>
+    {log}
+  </div>
+));
+
 // ⚡ Bolt Optimization: Memoize NodeStatusIndicators to prevent evaluating static DOM nodes and twMerge on every 1s tick
 const NodeStatusIndicators = memo(({ isEclipse }: { isEclipse: boolean }) => (
   <div className="grid grid-cols-2 gap-4">
@@ -490,9 +497,8 @@ export default function App() {
                   // ⚡ Bolt Optimization: Use the unique log string as the key instead of the array index
                   // Since items are prepended to this list every second, using index `i` forces React
                   // to re-render every single DOM node in the list. Stable keys mean only 1 new node is inserted.
-                  <div key={log} className={i === 0 ? "text-emerald-400" : "text-gray-600"}>
-                    {log}
-                  </div>
+                  // Additionally, extracting to a React.memo component with primitive props prevents re-rendering unmodified historical items.
+                  <TelemetryLogItem key={log} log={log} isLatest={i === 0} />
                 ))}
               </div>
             </div>

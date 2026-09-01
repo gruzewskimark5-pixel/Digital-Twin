@@ -43,3 +43,7 @@
 ## 2025-02-28 - Optimizing React Array State updates with Structural Sharing
 **Learning:** In state updates mapped over on an interval tick (e.g., jobs progress), returning a completely new array reference when elements inside haven't actually changed causes downstream props to fail referential equality checks, resulting in unneeded re-renders.
 **Action:** Use a `hasChanges` flag when `.map`ping over state array elements in a tick loop. If none of the inner properties actually mutated, return the previous state array reference (`prevJobs`) directly to preserve structural sharing and downstream equality.
+
+## 2024-05-18 - [Optimizing Dynamic Map Render In Frequency Ticks]
+**Learning:** Even with stable array keys, iterating over a list inside a frequent `setInterval` tick and rendering inline elements (like `div` with dynamic classes `className={i === 0 ? "..." : "..."}`) will still cause React to evaluate and diff every single DOM node. While keys prevent complete unmounts, they do not bypass the render phase for the nodes themselves unless they are memoized.
+**Action:** Extract inline elements inside `.map` loops into standalone components wrapped in `React.memo`, passing primitive props (like `isLatest={i === 0}`) instead of calculating them dynamically in the render loop. This ensures that historical elements whose props remain unchanged bypass the render cycle entirely.
