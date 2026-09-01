@@ -43,3 +43,7 @@
 ## 2025-02-28 - Optimizing React Array State updates with Structural Sharing
 **Learning:** In state updates mapped over on an interval tick (e.g., jobs progress), returning a completely new array reference when elements inside haven't actually changed causes downstream props to fail referential equality checks, resulting in unneeded re-renders.
 **Action:** Use a `hasChanges` flag when `.map`ping over state array elements in a tick loop. If none of the inner properties actually mutated, return the previous state array reference (`prevJobs`) directly to preserve structural sharing and downstream equality.
+
+## 2024-06-12 - Optimizing Array Maps with Memoized Primitive Props
+**Learning:** In high-frequency React render loops (e.g., 1-second interval ticks), iterating over an array to render inline DOM nodes (like `<div key={log}>`) forces React to re-evaluate the DOM structures for *every* historical item on every tick, even if a unique key is used. Deriving complex state inside the map (like checking `i === 0` inside the inline div) forces full re-renders of the list.
+**Action:** Always extract the inline mapped element into a standalone `React.memo()` component. Pass derived primitive props (e.g., `isLatest={i === 0}`) directly to the component, so React can successfully bypass reconciliation for older, unchanged items.
